@@ -7,12 +7,10 @@ namespace Wpf_OnlineRestaurantSystem.Models
     {
         private static readonly string connectionString = ConfigurationManager.ConnectionStrings["myConStr"].ConnectionString;
 
-        public static SqlConnection Connection
+        internal static SqlConnection Connection()
         {
-            get
-            {
-                return new SqlConnection(connectionString);
-            }
+           return new SqlConnection(connectionString);
+            
         }
     }
 }

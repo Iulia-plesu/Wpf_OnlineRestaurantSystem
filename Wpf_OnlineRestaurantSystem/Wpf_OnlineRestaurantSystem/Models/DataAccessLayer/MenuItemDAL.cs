@@ -10,7 +10,7 @@ namespace Wpf_OnlineRestaurantSystem.Models
         {
             List<MenuItem> menuItems = new List<MenuItem>();
 
-            using (SqlConnection con = HelperDAL.Connection)
+            using (SqlConnection con = HelperDAL.Connection())
             {
                 con.Open();
                 SqlCommand cmd = new SqlCommand("SELECT Id, Name, Price FROM MenuItems", con);
