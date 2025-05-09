@@ -2,6 +2,7 @@
 using System.Windows;
 using Microsoft.Data.SqlClient;
 using Wpf_OnlineRestaurantSystem.Models;
+using System.Linq;
 
 namespace Wpf_OnlineRestaurantSystem.Models
 {
@@ -14,30 +15,30 @@ namespace Wpf_OnlineRestaurantSystem.Models
             using (SqlConnection con = HelperDAL.Connection())
             {
                 con.Open();
+
+                // Get dishes directly in the selected category
                 var cmd = new SqlCommand(@"
-            -- Get dishes directly in the selected category
-            SELECT 
-                d.DishID AS Id,
-                d.Name,
-                d.Price,
-                d.Description,
-                0 AS IsMenu
-            FROM Dishes d
-            WHERE d.CategoryId = @CategoryId
+        -- Get dishes directly in the selected category
+        SELECT 
+            d.DishID AS Id,
+            d.Name,
+            d.Price,
+            d.Description,
+            0 AS IsMenu
+        FROM Dishes d
+        WHERE d.CategoryId = @CategoryId
 
-            UNION
+        UNION ALL
 
-            -- Get menus that include at least one dish from this category
-            SELECT 
-                DISTINCT m.id AS Id,
-                m.name AS Name,
-                0.0 AS Price, -- You can calculate menu price elsewhere
-                m.description AS Description,
-                1 AS IsMenu
-            FROM Menus m
-            INNER JOIN MenuItems mi ON m.id = mi.MenuId
-            INNER JOIN Dishes d ON mi.DishId = d.DishID
-            WHERE d.CategoryId = @CategoryId", con);
+        -- Get menus from the selected category (using the CategoryId of Menus)
+        SELECT 
+            m.id AS Id,
+            m.name AS Name,
+            0.0 AS Price,  -- Menus don't have a fixed price; we'll calculate it from sub-items
+            m.description AS Description,
+            1 AS IsMenu
+        FROM Menus m
+        WHERE m.CategoryId = @CategoryId", con);
 
                 cmd.Parameters.AddWithValue("@CategoryId", categoryId);
 
@@ -57,7 +58,6 @@ namespace Wpf_OnlineRestaurantSystem.Models
 
             return items;
         }
-
 
         public static List<MenuItem> GetSubItemsForMenu(int menuId)
         {
@@ -97,6 +97,7 @@ namespace Wpf_OnlineRestaurantSystem.Models
 
             return subItems;
         }
+
         public static List<MenuItem> GetAllItemsByCategoryId(int categoryId)
         {
             var allItems = new List<MenuItem>();
@@ -105,7 +106,7 @@ namespace Wpf_OnlineRestaurantSystem.Models
             {
                 con.Open();
 
-                // Feluri de mâncare simple
+                // Fetch simple dishes
                 var dishesCmd = new SqlCommand(@"
             SELECT DishID, Name, Price, Description, Allergens
             FROM Dishes
@@ -127,7 +128,7 @@ namespace Wpf_OnlineRestaurantSystem.Models
                 }
                 reader.Close();
 
-                // Meniuri
+                // Fetch menus
                 var menuCmd = new SqlCommand(@"
             SELECT m.Id, m.Name, m.Description, m.DiscountPercentage
             FROM Menus m
@@ -144,7 +145,7 @@ namespace Wpf_OnlineRestaurantSystem.Models
                         Id = menuReader.GetInt32(0),
                         Name = menuReader.GetString(1),
                         Description = menuReader.IsDBNull(2) ? null : menuReader.GetString(2),
-                        Price = 0,  // îl calculăm mai jos din subitems
+                        Price = 0,  // We will calculate the menu price below from subitems
                         IsMenu = true,
                         SubItems = new List<MenuItem>()
                     };
@@ -153,12 +154,12 @@ namespace Wpf_OnlineRestaurantSystem.Models
                 }
                 menuReader.Close();
 
-                // Adaugă sub-itemi și calculează prețul meniului (opțional)
+                // Add sub-items for menus and calculate total menu price (with discount)
                 foreach (var menu in menus)
                 {
                     menu.SubItems = GetSubItemsForMenu(menu.Id);
 
-                    // Poți calcula un preț total cu discount:
+                    // Calculate total price with optional discount
                     decimal totalPrice = menu.SubItems.Sum(i => i.Price);
                     decimal discount = GetMenuDiscount(menu.Id, con);
                     menu.Price = totalPrice * (1 - discount / 100);
@@ -177,6 +178,5 @@ namespace Wpf_OnlineRestaurantSystem.Models
             object result = cmd.ExecuteScalar();
             return result != null ? Convert.ToDecimal(result) : 0;
         }
-
     }
 }
