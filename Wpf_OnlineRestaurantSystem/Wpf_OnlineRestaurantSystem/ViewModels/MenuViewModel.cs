@@ -1,16 +1,70 @@
 ﻿using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 using Wpf_OnlineRestaurantSystem.Models;
 
 
 namespace Wpf_OnlineRestaurantSystem.ViewModels
 {
-    public class MenuViewModel
+    public class MenuViewModel : INotifyPropertyChanged
     {
         public ObservableCollection<Category> Categories { get; set; }
+        public ObservableCollection<MenuItem> MenuItems { get; set; }
+        public ObservableCollection<MenuItem> SubItems { get; set; }
+
+        private Category selectedCategory;
+        public Category SelectedCategory
+        {
+            get => selectedCategory;
+            set
+            {
+                selectedCategory = value;
+                OnPropertyChanged();
+                LoadMenuItems();
+            }
+        }
+
+        private MenuItem selectedItem;
+        public MenuItem SelectedItem
+        {
+            get => selectedItem;
+            set
+            {
+                selectedItem = value;
+                OnPropertyChanged();
+                LoadSubItemsOrDetails();
+            }
+        }
 
         public MenuViewModel()
         {
             Categories = new ObservableCollection<Category>(CategoryDAL.GetAllCategories());
+            MenuItems = new ObservableCollection<MenuItem>();
+            SubItems = new ObservableCollection<MenuItem>();
         }
+
+        private void LoadMenuItems()
+        {
+            MenuItems.Clear();
+            if (SelectedCategory == null) return;  
+            foreach (var item in MenuItemDAL.GetItemsByCategoryId(SelectedCategory.Id))
+                MenuItems.Add(item);
+        }
+
+
+        private void LoadSubItemsOrDetails()
+        {
+            SubItems.Clear();
+            if (SelectedItem?.IsMenu == true)
+            {
+                foreach (var sub in MenuItemDAL.GetSubItemsForMenu(SelectedItem.Id))
+                    SubItems.Add(sub);
+            }
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected void OnPropertyChanged([CallerMemberName] string name = "") =>
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
     }
+
 }
