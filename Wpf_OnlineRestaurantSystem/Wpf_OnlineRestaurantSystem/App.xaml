@@ -3,7 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:Wpf_OnlineRestaurantSystem"
              xmlns:conv="clr-namespace:Wpf_OnlineRestaurantSystem.Converters"
-             StartupUri="Views/LoginWindow.xaml">
+             StartupUri="Views/StartWindow.xaml">
     <Application.Resources>
         <conv:StringNullOrEmptyToVisibilityConverter x:Key="StringNullOrEmptyToVisibilityConverter" />
     </Application.Resources>
