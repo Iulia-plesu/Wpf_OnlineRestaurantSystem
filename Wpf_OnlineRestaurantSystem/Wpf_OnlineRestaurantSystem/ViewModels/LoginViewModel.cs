@@ -2,6 +2,10 @@
 using System.Runtime.CompilerServices;
 using System.Windows;
 using Wpf_OnlineRestaurantSystem.Models;
+using Wpf_OnlineRestaurantSystem.Views;
+using Wpf_OnlineRestaurantSystem.Helpers;
+using System.Linq;
+
 
 namespace Wpf_OnlineRestaurantSystem.ViewModels
 {
@@ -41,9 +45,21 @@ namespace Wpf_OnlineRestaurantSystem.ViewModels
             var user = UserDAL.GetUserByEmailAndPassword(Email, Password);
             if (user != null)
             {
+                // Salvează utilizatorul în sesiune
+                Helpers.Session.CurrentUser = user;
+
                 Message = $"Bun venit, {user.FirstName}!";
-                MessageBox.Show(Message);  // Sau, poți să folosești o metodă mai elegantă pentru a afișa un mesaj
-                                           // Navighează spre fereastra principală
+                MessageBox.Show(Message);
+
+                // Deschide fereastra principală (MenuWindow)
+                var menuWindow = new MenuWindow();
+                menuWindow.Show();
+
+                // Închide fereastra curentă (LoginWindow)
+                Application.Current.Windows
+                    .OfType<Window>()
+                    .FirstOrDefault(w => w is LoginWindow)?
+                    .Close();
             }
             else
             {
@@ -51,6 +67,7 @@ namespace Wpf_OnlineRestaurantSystem.ViewModels
                 MessageBox.Show(Message);
             }
         }
+
 
         public event PropertyChangedEventHandler PropertyChanged;
         private void OnPropertyChanged([CallerMemberName] string name = null)
