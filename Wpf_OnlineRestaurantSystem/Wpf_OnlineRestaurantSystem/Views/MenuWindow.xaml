@@ -3,9 +3,11 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:Wpf_OnlineRestaurantSystem.Views"
+        xmlns:local="clr-namespace:Wpf_OnlineRestaurantSystem.Converters"
         mc:Ignorable="d"
-        Title="MenuWindow" Height="450" Width="800">
+        Title="MenuWindow" Height="500" Width="900">
+    
+    
     <Grid Margin="10">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="200"/>
@@ -13,45 +15,45 @@
             <ColumnDefinition Width="2*"/>
         </Grid.ColumnDefinitions>
 
-        <!-- Lista categorii -->
+        <!-- Categories -->
         <ComboBox 
             Grid.Column="0"
             ItemsSource="{Binding Categories}"
             SelectedItem="{Binding SelectedCategory, Mode=TwoWay}"
             DisplayMemberPath="Name"
-            Width="200" Margin="10"/>
+            Margin="10" />
 
-        <!-- Lista itemuri din categorie -->
+        <!-- Menu Items in Selected Category -->
         <ListBox Grid.Column="1"
-             ItemsSource="{Binding MenuItems}" 
-             SelectedItem="{Binding SelectedItem}"
-             DisplayMemberPath="Name"
-             Margin="10"/>
+                 ItemsSource="{Binding MenuItems}" 
+                 SelectedItem="{Binding SelectedItem, Mode=TwoWay}"
+                 DisplayMemberPath="Name"
+                 Margin="10"/>
 
-        <!-- Detalii sau subitemuri -->
-        <StackPanel Grid.Column="2" Margin="10">
-            <TextBlock Text="Detalii:" FontWeight="Bold" Margin="0,0,0,10"/>
+        <!-- Selected Item Details -->
+        <StackPanel Grid.Column="2" Margin="10" DataContext="{Binding SelectedItem}">
+            <TextBlock Text="Detalii:" FontWeight="Bold" FontSize="16" Margin="0,0,0,10"/>
 
-            <!-- Detalii despre itemul selectat -->
-            <ListView ItemsSource="{Binding SelectedItem}" Margin="10">
-                <ListView.View>
-                    <GridView>
-                        <GridViewColumn Header="Name" DisplayMemberBinding="{Binding Name}" Width="150"/>
-                        <GridViewColumn Header="Price" DisplayMemberBinding="{Binding Price, StringFormat=C}" Width="70"/>
-                        <GridViewColumn Header="Description" DisplayMemberBinding="{Binding Description}" Width="250"/>
-                    </GridView>
-                </ListView.View>
-            </ListView>
+            <TextBlock Text="{Binding Name}" FontWeight="Bold" FontSize="14"/>
+            <TextBlock Text="{Binding Description}" TextWrapping="Wrap" Margin="0,5,0,5"/>
+            <TextBlock Text="Preț:" FontWeight="SemiBold"/>
+            <TextBlock Text="{Binding Price, StringFormat={}{0:C}}" Margin="0,0,0,5"/>
+            <TextBlock Text="Alergeni:" FontWeight="SemiBold" Visibility="{Binding Allergens, Converter={StaticResource NullToVisibilityConverter}}"/>
+            <TextBlock Text="{Binding Allergens}" TextWrapping="Wrap"/>
 
-            <!-- Sub-itemuri dacă este meniu -->
-            <ItemsControl ItemsSource="{Binding SubItems}" Margin="10">
+            <!-- Subitems for Menus -->
+            <ItemsControl ItemsSource="{Binding SubItems}" Margin="10,20,0,0"
+                          Visibility="{Binding IsMenu, Converter={StaticResource BoolToVisibilityConverter}}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <StackPanel Margin="5">
-                            <TextBlock Text="{Binding Name}" FontWeight="SemiBold"/>
-                            <TextBlock Text="{Binding Description}" FontStyle="Italic"/>
-                            <TextBlock Text="{Binding Price, StringFormat=C}" />
-                        </StackPanel>
+                        <Border BorderThickness="1" BorderBrush="Gray" Padding="5" Margin="0,5">
+                            <StackPanel>
+                                <TextBlock Text="{Binding Name}" FontWeight="SemiBold"/>
+                                <TextBlock Text="{Binding Description}" FontStyle="Italic"/>
+                                <TextBlock Text="{Binding Price, StringFormat={}{0:C}}" />
+                                <TextBlock Text="{Binding Allergens}" FontStyle="Italic" Foreground="DarkRed"/>
+                            </StackPanel>
+                        </Border>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>

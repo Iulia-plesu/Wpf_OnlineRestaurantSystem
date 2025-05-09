@@ -47,7 +47,7 @@ namespace Wpf_OnlineRestaurantSystem.ViewModels
         {
             MenuItems.Clear();
             if (SelectedCategory == null) return;  
-            foreach (var item in MenuItemDAL.GetItemsByCategoryId(SelectedCategory.Id))
+            foreach (var item in MenuItemDAL.GetAllItemsByCategoryId(SelectedCategory.Id))
                 MenuItems.Add(item);
         }
 

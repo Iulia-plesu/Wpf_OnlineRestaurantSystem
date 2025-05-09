@@ -49,7 +49,7 @@ namespace Wpf_OnlineRestaurantSystem.ViewModels
                 Helpers.Session.CurrentUser = user;
 
                 Message = $"Bun venit, {user.FirstName}!";
-                MessageBox.Show(Message);
+                
 
                 // Deschide fereastra principală (MenuWindow)
                 var menuWindow = new MenuWindow();
@@ -64,7 +64,6 @@ namespace Wpf_OnlineRestaurantSystem.ViewModels
             else
             {
                 Message = "Email sau parolă incorectă.";
-                MessageBox.Show(Message);
             }
         }
 
