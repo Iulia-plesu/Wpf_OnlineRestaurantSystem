@@ -45,17 +45,13 @@ namespace Wpf_OnlineRestaurantSystem.ViewModels
             var user = UserDAL.GetUserByEmailAndPassword(Email, Password);
             if (user != null)
             {
-                // Salvează utilizatorul în sesiune
                 Helpers.Session.CurrentUser = user;
 
                 Message = $"Bun venit, {user.FirstName}!";
                 
-
-                // Deschide fereastra principală (MenuWindow)
                 var menuWindow = new MenuWindow();
                 menuWindow.Show();
 
-                // Închide fereastra curentă (LoginWindow)
                 Application.Current.Windows
                     .OfType<Window>()
                     .FirstOrDefault(w => w is LoginWindow)?

@@ -16,31 +16,44 @@ namespace Wpf_OnlineRestaurantSystem.Models
             {
                 con.Open();
 
-                // Get dishes directly in the selected category
-                var cmd = new SqlCommand(@"
-        -- Get dishes directly in the selected category
-        SELECT 
-            d.DishID AS Id,
-            d.Name,
-            d.Price,
-            d.Description,
-            0 AS IsMenu
-        FROM Dishes d
-        WHERE d.CategoryId = @CategoryId
+                SqlCommand cmd;
 
-        UNION ALL
+                if (categoryId == -1)
+                {
+                    cmd = new SqlCommand(@"
+                        SELECT 
+                            m.id AS Id,
+                            m.name AS Name,
+                            0.0 AS Price,
+                            m.description AS Description,
+                            1 AS IsMenu
+                        FROM Menus m", con);
+                }
+                else
+                {
+                    cmd = new SqlCommand(@"
+                        SELECT 
+                            d.DishID AS Id,
+                            d.Name,
+                            d.Price,
+                            d.Description,
+                            0 AS IsMenu
+                        FROM Dishes d
+                        WHERE d.CategoryId = @CategoryId
 
-        -- Get menus from the selected category (using the CategoryId of Menus)
-        SELECT 
-            m.id AS Id,
-            m.name AS Name,
-            0.0 AS Price,  -- Menus don't have a fixed price; we'll calculate it from sub-items
-            m.description AS Description,
-            1 AS IsMenu
-        FROM Menus m
-        WHERE m.CategoryId = @CategoryId", con);
+                        UNION ALL
 
-                cmd.Parameters.AddWithValue("@CategoryId", categoryId);
+                        SELECT 
+                            m.id AS Id,
+                            m.name AS Name,
+                            0.0 AS Price,
+                            m.description AS Description,
+                            1 AS IsMenu
+                        FROM Menus m
+                        WHERE m.CategoryId = @CategoryId", con);
+
+                    cmd.Parameters.AddWithValue("@CategoryId", categoryId);
+                }
 
                 var reader = cmd.ExecuteReader();
                 while (reader.Read())
@@ -67,16 +80,16 @@ namespace Wpf_OnlineRestaurantSystem.Models
             {
                 con.Open();
                 var cmd = new SqlCommand(@"
-            SELECT 
-                d.DishID,
-                d.Name,
-                d.Price,
-                d.Description,
-                0 AS IsMenu,
-                d.Allergens
-            FROM MenuItems mi
-            INNER JOIN Dishes d ON mi.DishId = d.DishID
-            WHERE mi.MenuId = @MenuId", con);
+                    SELECT 
+                        d.DishID,
+                        d.Name,
+                        d.Price,
+                        d.Description,
+                        0 AS IsMenu,
+                        d.Allergens
+                    FROM MenuItems mi
+                    INNER JOIN Dishes d ON mi.DishId = d.DishID
+                    WHERE mi.MenuId = @MenuId", con);
 
                 cmd.Parameters.AddWithValue("@MenuId", menuId);
 
@@ -106,11 +119,10 @@ namespace Wpf_OnlineRestaurantSystem.Models
             {
                 con.Open();
 
-                // Fetch simple dishes
                 var dishesCmd = new SqlCommand(@"
-            SELECT DishID, Name, Price, Description, Allergens
-            FROM Dishes
-            WHERE CategoryId = @CategoryId", con);
+                    SELECT DishID, Name, Price, Description, Allergens
+                    FROM Dishes
+                    WHERE CategoryId = @CategoryId", con);
                 dishesCmd.Parameters.AddWithValue("@CategoryId", categoryId);
 
                 var reader = dishesCmd.ExecuteReader();
@@ -128,11 +140,10 @@ namespace Wpf_OnlineRestaurantSystem.Models
                 }
                 reader.Close();
 
-                // Fetch menus
                 var menuCmd = new SqlCommand(@"
-            SELECT m.Id, m.Name, m.Description, m.DiscountPercentage
-            FROM Menus m
-            WHERE m.CategoryId = @CategoryId", con);
+                    SELECT m.Id, m.Name, m.Description, m.DiscountPercentage
+                    FROM Menus m
+                    WHERE m.CategoryId = @CategoryId", con);
                 menuCmd.Parameters.AddWithValue("@CategoryId", categoryId);
 
                 var menuReader = menuCmd.ExecuteReader();
@@ -145,7 +156,7 @@ namespace Wpf_OnlineRestaurantSystem.Models
                         Id = menuReader.GetInt32(0),
                         Name = menuReader.GetString(1),
                         Description = menuReader.IsDBNull(2) ? null : menuReader.GetString(2),
-                        Price = 0,  // We will calculate the menu price below from subitems
+                        Price = 0,  
                         IsMenu = true,
                         SubItems = new List<MenuItem>()
                     };
@@ -154,12 +165,10 @@ namespace Wpf_OnlineRestaurantSystem.Models
                 }
                 menuReader.Close();
 
-                // Add sub-items for menus and calculate total menu price (with discount)
                 foreach (var menu in menus)
                 {
                     menu.SubItems = GetSubItemsForMenu(menu.Id);
 
-                    // Calculate total price with optional discount
                     decimal totalPrice = menu.SubItems.Sum(i => i.Price);
                     decimal discount = GetMenuDiscount(menu.Id, con);
                     menu.Price = totalPrice * (1 - discount / 100);

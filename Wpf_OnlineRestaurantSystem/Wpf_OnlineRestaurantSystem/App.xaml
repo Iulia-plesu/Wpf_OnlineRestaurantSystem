@@ -8,6 +8,5 @@
         <conv:StringNullOrEmptyToVisibilityConverter x:Key="StringNullOrEmptyToVisibilityConverter" />
         <conv:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
         <conv:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
-
     </Application.Resources>
 </Application>

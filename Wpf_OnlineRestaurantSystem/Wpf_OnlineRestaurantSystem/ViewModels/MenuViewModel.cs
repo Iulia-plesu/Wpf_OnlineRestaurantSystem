@@ -38,7 +38,11 @@ namespace Wpf_OnlineRestaurantSystem.ViewModels
 
         public MenuViewModel()
         {
-            Categories = new ObservableCollection<Category>(CategoryDAL.GetAllCategories());
+            var categoryList = CategoryDAL.GetAllCategories();
+
+            categoryList.Add(new Category { Id = -1, Name = "Menus" });
+
+            Categories = new ObservableCollection<Category>(categoryList);
             MenuItems = new ObservableCollection<MenuItem>();
             SubItems = new ObservableCollection<MenuItem>();
         }
@@ -46,11 +50,23 @@ namespace Wpf_OnlineRestaurantSystem.ViewModels
         private void LoadMenuItems()
         {
             MenuItems.Clear();
-            if (SelectedCategory == null) return;  
-            foreach (var item in MenuItemDAL.GetAllItemsByCategoryId(SelectedCategory.Id))
-                MenuItems.Add(item);
-        }
+            if (SelectedCategory == null) return;
+            if (SelectedCategory.Id == -1)
+            {
+                var allMenus = CategoryDAL.GetAllCategories()
+                    .SelectMany(cat => MenuItemDAL.GetAllItemsByCategoryId(cat.Id))
+                    .Where(item => item.IsMenu);
 
+                foreach (var menu in allMenus)
+                    MenuItems.Add(menu);
+            }
+            else
+            {
+                foreach (var item in MenuItemDAL.GetAllItemsByCategoryId(SelectedCategory.Id))
+                    MenuItems.Add(item);
+            }
+
+        }
 
         private void LoadSubItemsOrDetails()
         {
