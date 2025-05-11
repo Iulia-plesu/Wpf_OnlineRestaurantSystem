@@ -12,7 +12,7 @@ namespace Wpf_OnlineRestaurantSystem.ViewModels
         public ObservableCollection<Category> Categories { get; set; }
         public ObservableCollection<MenuItem> MenuItems { get; set; }
         public ObservableCollection<MenuItem> SubItems { get; set; }
-        public ObservableCollection<MenuItem> SelectedItems { get; set; } = new();
+        public ObservableCollection<OrderItem> SelectedItems { get; set; } = new();
         
 
         public ICommand AddToOrderCommand { get; }
@@ -20,7 +20,7 @@ namespace Wpf_OnlineRestaurantSystem.ViewModels
         public ICommand RemoveFromOrderCommand { get; }
         public ICommand ClearOrderCommand { get; }
         public ICommand PlaceOrderCommand { get; }
-        public decimal TotalPrice => SelectedItems.Sum(item => item.Price);
+        public decimal TotalPrice => SelectedItems.Sum(order => order.TotalPrice);
 
 
         private Category selectedCategory;
@@ -55,7 +55,7 @@ namespace Wpf_OnlineRestaurantSystem.ViewModels
             Categories = new ObservableCollection<Category>(categoryList);
             MenuItems = new ObservableCollection<MenuItem>();
             SubItems = new ObservableCollection<MenuItem>();
-            SelectedItems = new ObservableCollection<MenuItem>();
+            SelectedItems = new ObservableCollection<OrderItem>();
 
             AddToOrderCommand = new RelayCommand(_ => AddSelectedItem());
 
@@ -67,31 +67,44 @@ namespace Wpf_OnlineRestaurantSystem.ViewModels
         {
             if (SelectedItem == null) return;
 
-            var itemToAdd = new MenuItem
+            // Check if item already exists in the order
+            var existingOrder = SelectedItems.FirstOrDefault(o => o.Item.Id == SelectedItem.Id);
+            if (existingOrder != null)
             {
-                Id = SelectedItem.Id,
-                Name = SelectedItem.Name,
-                Description = SelectedItem.Description,
-                IsMenu = SelectedItem.IsMenu,
-                Price = SelectedItem.Price,
-                Allergens = SelectedItem.Allergens,
-                DiscountApplied = null
-            };
-
-            if (itemToAdd.IsMenu)
+                existingOrder.Quantity++;
+            }
+            else
             {
-                double discount = Properties.Settings.Default.DiscountPercentage;
-                if (discount > 0)
+                var itemToAdd = new MenuItem
                 {
-                    itemToAdd.DiscountApplied = discount;
-                    itemToAdd.Price -= itemToAdd.Price * ((decimal)discount / 100);
+                    Id = SelectedItem.Id,
+                    Name = SelectedItem.Name,
+                    Description = SelectedItem.Description,
+                    IsMenu = SelectedItem.IsMenu,
+                    Price = SelectedItem.Price,
+                    Allergens = SelectedItem.Allergens,
+                    DiscountApplied = null
+                };
+
+                if (itemToAdd.IsMenu)
+                {
+                    double discount = Properties.Settings.Default.DiscountPercentage;
+                    if (discount > 0)
+                    {
+                        itemToAdd.DiscountApplied = discount;
+                        itemToAdd.Price -= itemToAdd.Price * ((decimal)discount / 100);
+                    }
                 }
+
+                SelectedItems.Add(new OrderItem
+                {
+                    Item = itemToAdd,
+                    Quantity = 1
+                });
             }
 
-            SelectedItems.Add(itemToAdd);
             OnPropertyChanged(nameof(TotalPrice));
         }
-
 
         private void LoadMenuItems()
         {
