@@ -21,36 +21,36 @@ namespace Wpf_OnlineRestaurantSystem.Models
                 if (categoryId == -1)
                 {
                     cmd = new SqlCommand(@"
-                        SELECT 
-                            m.id AS Id,
-                            m.name AS Name,
-                            0.0 AS Price,
-                            m.description AS Description,
-                            1 AS IsMenu
-                        FROM Menus m", con);
+                SELECT 
+                    m.id AS Id,
+                    m.name AS Name,
+                    0.0 AS Price,
+                    m.description AS Description,
+                    1 AS IsMenu
+                FROM Menus m", con);
                 }
                 else
                 {
                     cmd = new SqlCommand(@"
-                        SELECT 
-                            d.DishID AS Id,
-                            d.Name,
-                            d.Price,
-                            d.Description,
-                            0 AS IsMenu
-                        FROM Dishes d
-                        WHERE d.CategoryId = @CategoryId
+                SELECT 
+                    d.DishID AS Id,
+                    d.Name,
+                    d.Price,
+                    d.Description,
+                    0 AS IsMenu
+                FROM Dishes d
+                WHERE d.CategoryId = @CategoryId AND d.IsPartOfMenu = 0  -- exclude dishes that are part of menu
 
-                        UNION ALL
+                UNION ALL
 
-                        SELECT 
-                            m.id AS Id,
-                            m.name AS Name,
-                            0.0 AS Price,
-                            m.description AS Description,
-                            1 AS IsMenu
-                        FROM Menus m
-                        WHERE m.CategoryId = @CategoryId", con);
+                SELECT 
+                    m.id AS Id,
+                    m.name AS Name,
+                    0.0 AS Price,
+                    m.description AS Description,
+                    1 AS IsMenu
+                FROM Menus m
+                WHERE m.CategoryId = @CategoryId", con);
 
                     cmd.Parameters.AddWithValue("@CategoryId", categoryId);
                 }
@@ -119,11 +119,10 @@ namespace Wpf_OnlineRestaurantSystem.Models
             {
                 con.Open();
 
-                // Select dishes
                 var dishesCmd = new SqlCommand(@"
-            SELECT DishID, Name, Price, Description, Allergens
-            FROM Dishes
-            WHERE CategoryId = @CategoryId", con);
+                    SELECT DishID, Name, Price, Description, Allergens
+                    FROM Dishes
+                    WHERE CategoryId = @CategoryId AND IsPartOfMenu = 0", con);
                 dishesCmd.Parameters.AddWithValue("@CategoryId", categoryId);
 
                 var reader = dishesCmd.ExecuteReader();

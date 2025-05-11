@@ -16,7 +16,6 @@ namespace Wpf_OnlineRestaurantSystem.Models
 
             try
             {
-                // 1. Inserează în tabela Orders
                 var orderCmd = new SqlCommand(@"
                     INSERT INTO Orders (UserID, OrderDate, Status, TotalAmount)
                     OUTPUT INSERTED.OrderID
