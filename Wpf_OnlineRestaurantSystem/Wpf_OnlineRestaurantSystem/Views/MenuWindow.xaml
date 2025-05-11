@@ -6,6 +6,10 @@
         xmlns:local="clr-namespace:Wpf_OnlineRestaurantSystem.Converters"
         mc:Ignorable="d"
         Title="MenuWindow" Height="500" Width="900">
+    <Window.Resources>
+        <local:BoolToOpacityConverter x:Key="BoolToOpacityConverter"/>
+    </Window.Resources>
+
 
     <Grid Margin="10">
         <Grid.ColumnDefinitions>
@@ -35,10 +39,19 @@
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
+            
 
             <!-- Scrollable Selected Item Details -->
             <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto">
+                
                 <StackPanel DataContext="{Binding SelectedItem}">
+                    <Button Content="Logout"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Top"
+                        Width="80"
+                        Height="30"
+                        Margin="0,0,10,0"
+                        Click="Logout_Click"/>      
                     <TextBlock Text="Detalii:" FontWeight="Bold" FontSize="16" Margin="0,0,0,10"/>
 
                     <TextBlock Text="{Binding Name}" FontWeight="Bold" FontSize="14"/>
@@ -67,7 +80,11 @@
 
             <!-- Add to Order Button -->
             <Button Grid.Row="1" Content="Add to Order"
-                    Command="{Binding AddToOrderCommand}" Height="30" Margin="0,10,0,0"/>
+                Command="{Binding AddToOrderCommand}"
+                IsEnabled="{Binding IsUserLoggedIn}"
+                Height="30" Margin="0,10,0,0"
+                Opacity="{Binding IsUserLoggedIn, Converter={StaticResource BoolToOpacityConverter}}"/>
+
         </Grid>
 
         <!-- Selected items and total -->
@@ -77,23 +94,32 @@
             <ItemsControl ItemsSource="{Binding SelectedItems}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <StackPanel Orientation="Horizontal" Margin="0,2">
-                            <TextBlock Text="{Binding Quantity}" FontWeight="Bold" Margin="0,0,5,0"/>
-                            <TextBlock Text=" x " FontWeight="Bold"/>
-                            <TextBlock Text="{Binding Item.Name}" Margin="5,0"/>
-                            <TextBlock Text="{Binding TotalPrice, StringFormat= - {0:C}}" Margin="10,0,0,0"/>
-                            <!-- Display the Discount Applied -->
-                            <TextBlock Text="{Binding DiscountApplied, StringFormat=Discount: {0}%}" Foreground="Green"/>
+                        <StackPanel Orientation="Vertical" Margin="0,2">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="{Binding Quantity}" FontWeight="Bold" Margin="0,0,5,0"/>
+                                <TextBlock Text=" x " FontWeight="Bold"/>
+                                <TextBlock Text="{Binding Item.Name}" Margin="5,0"/>
+                                <TextBlock Text="{Binding TotalPrice, StringFormat= - {0:C}}" Margin="10,0,0,0"/>
+                            </StackPanel>
+                            <!-- Display the Discount Applied on a new line -->
+                            <TextBlock Text="{Binding DiscountApplied, StringFormat=Discount: {0}%}"
+                           Foreground="Green"
+                           Visibility="{Binding DiscountApplied, Converter={StaticResource NullToVisibilityConverter}}"
+                           Margin="20,0,0,0"/>
                         </StackPanel>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
-
+            
             <TextBlock Text="{Binding TotalPrice, StringFormat=Total: {0:C}}"
                FontWeight="Bold" FontSize="16" Margin="0,10,0,0"/>
-            <Button Content="Finish Order"
+            <Button Content="Place Order"
                 Height="30"
-                Command="{Binding PlaceOrderCommand}" Width="136" />
+                Command="{Binding PlaceOrderCommand}"
+                IsEnabled="{Binding IsUserLoggedIn}"
+                Width="136"
+                Opacity="{Binding IsUserLoggedIn, Converter={StaticResource BoolToOpacityConverter}}"/>
+
 
         </StackPanel>
 

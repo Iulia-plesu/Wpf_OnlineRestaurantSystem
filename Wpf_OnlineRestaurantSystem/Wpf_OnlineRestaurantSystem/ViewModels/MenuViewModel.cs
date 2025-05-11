@@ -12,6 +12,12 @@ namespace Wpf_OnlineRestaurantSystem.ViewModels
 {
     public class MenuViewModel : INotifyPropertyChanged
     {
+        public bool IsUserLoggedIn => Session.GetCurrentUserId() != -1;
+        private void NotifyUserStatusChanged()
+        {
+            OnPropertyChanged(nameof(IsUserLoggedIn));
+        }
+
         public ObservableCollection<Category> Categories { get; set; }
         public ObservableCollection<MenuItem> MenuItems { get; set; }
         public ObservableCollection<MenuItem> SubItems { get; set; }
@@ -62,8 +68,9 @@ namespace Wpf_OnlineRestaurantSystem.ViewModels
             SubItems = new ObservableCollection<MenuItem>();
             SelectedItems = new ObservableCollection<OrderItem>();
 
-            AddToOrderCommand = new RelayCommand(_ => AddSelectedItem());
-            PlaceOrderCommand = new RelayCommand(_ => PlaceOrder());
+            AddToOrderCommand = new RelayCommand(_ => AddSelectedItem(), _ => IsUserLoggedIn);
+            PlaceOrderCommand = new RelayCommand(_ => PlaceOrder(), _ => IsUserLoggedIn);
+
 
             SelectedCategory = Categories.FirstOrDefault(c => c.Name == "Menus") ?? Categories.FirstOrDefault();
 
@@ -98,6 +105,12 @@ namespace Wpf_OnlineRestaurantSystem.ViewModels
 
         private void AddSelectedItem()
         {
+            if (!IsUserLoggedIn)
+            {
+                MessageBox.Show("Trebuie să fii autentificat pentru a adăuga produse la comandă.");
+                return;
+            }
+
             if (SelectedItem == null) return;
 
             // Check if item already exists in the order

@@ -10,5 +10,14 @@ namespace Wpf_OnlineRestaurantSystem.Views
             InitializeComponent();
             DataContext = new MenuViewModel(this);
         }
+        private void Logout_Click(object sender, RoutedEventArgs e)
+        {
+            var loginWindow = new LoginWindow();
+            loginWindow.Show();
+            Application.Current.MainWindow = loginWindow; // setăm noua MainWindow
+            this.Close();
+
+        }
+
     }
 }
