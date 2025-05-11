@@ -1,8 +1,10 @@
 ﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Windows;
 using System.Windows.Input;
 using Wpf_OnlineRestaurantSystem.Models;
+using Wpf_OnlineRestaurantSystem.Views;
 
 
 namespace Wpf_OnlineRestaurantSystem.ViewModels
@@ -46,9 +48,11 @@ namespace Wpf_OnlineRestaurantSystem.ViewModels
                 LoadSubItemsOrDetails();
             }
         }
-
-        public MenuViewModel()
+        private readonly Window currentWindow;
+        public MenuViewModel(Window window)
         {
+            currentWindow = window;
+
             var categoryList = CategoryDAL.GetAllCategories();
             categoryList.Add(new Category { Id = -1, Name = "Menus" });
 
@@ -58,10 +62,19 @@ namespace Wpf_OnlineRestaurantSystem.ViewModels
             SelectedItems = new ObservableCollection<OrderItem>();
 
             AddToOrderCommand = new RelayCommand(_ => AddSelectedItem());
+            PlaceOrderCommand = new RelayCommand(_ => PlaceOrder());
 
             SelectedCategory = Categories.FirstOrDefault(c => c.Name == "Menus") ?? Categories.FirstOrDefault();
 
         }
+        private void PlaceOrder()
+        {
+            var statusWindow = new OrderStatusWindow();
+            statusWindow.Show(); // non-modal
+            currentWindow.Close();
+        }
+
+
 
         private void AddSelectedItem()
         {

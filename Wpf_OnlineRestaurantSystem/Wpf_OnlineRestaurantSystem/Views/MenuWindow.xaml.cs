@@ -8,7 +8,7 @@ namespace Wpf_OnlineRestaurantSystem.Views
         public MenuWindow()
         {
             InitializeComponent();
-            DataContext = new MenuViewModel();
+            DataContext = new MenuViewModel(this);
         }
     }
 }
