@@ -48,6 +48,38 @@ namespace Wpf_OnlineRestaurantSystem.Models
 
             return null;
         }
+        public static bool RegisterUser(User newUser)
+        {
+            try
+            {
+                using (SqlConnection con = HelperDAL.Connection())
+                {
+                    con.Open();
+                    using (SqlCommand cmd = new SqlCommand(@"
+                INSERT INTO Users 
+                (Username, FullName, Email, PhoneNumber, Address, PasswordHash, Role, CreatedAt)
+                VALUES 
+                (@Username, @FullName, @Email, @PhoneNumber, @Address, @PasswordHash, @Role, GETDATE())", con))
+                    {
+                        cmd.Parameters.AddWithValue("@Username", newUser.FirstName);
+                        cmd.Parameters.AddWithValue("@FullName", newUser.LastName); 
+                        cmd.Parameters.AddWithValue("@Email", newUser.Email);
+                        cmd.Parameters.AddWithValue("@PhoneNumber", newUser.PhoneNumber);
+                        cmd.Parameters.AddWithValue("@Address", newUser.Address);
+                        cmd.Parameters.AddWithValue("@PasswordHash", newUser.Password);
+                        cmd.Parameters.AddWithValue("@Role", "Customer"); 
+
+                        int rows = cmd.ExecuteNonQuery();
+                        return rows > 0;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Windows.MessageBox.Show("Eroare la înregistrare: " + ex.Message);
+                return false;
+            }
+        }
 
 
     }

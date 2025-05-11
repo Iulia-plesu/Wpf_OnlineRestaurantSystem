@@ -15,11 +15,17 @@ namespace Wpf_OnlineRestaurantSystem.Views
             loginWindow.Show();
             this.Close(); 
         }
+        private void CreateAccountButton_Click(object sender, RoutedEventArgs e)
+        {
+            SignUpWindow signUpWindow = new SignUpWindow();
+            signUpWindow.Show();
+            this.Close(); 
+        }
+
         private void GuestButton_Click(object sender, RoutedEventArgs e)
         {
             var menuWindow = new MenuWindow();
             menuWindow.Show();
-
             this.Close();
         }
 

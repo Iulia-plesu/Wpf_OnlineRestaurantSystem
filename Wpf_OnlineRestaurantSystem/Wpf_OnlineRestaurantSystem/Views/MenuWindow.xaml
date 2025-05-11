@@ -55,8 +55,9 @@
 
                     <!-- Show remaining quantity for non-menu items -->
                     <TextBlock Text="{Binding TotalQuantity, Converter={StaticResource QuantityDisplayConverter}}"
-                               Margin="0,5,0,5"
-                               Visibility="{Binding IsMenu, Converter={StaticResource InverseBoolToVisibilityConverter}}"/>
+                       Margin="0,5,0,5"
+                       Visibility="{Binding ShowQuantityVisibility}"/>
+
 
                     <!-- Subitems for Menus -->
                     <ItemsControl ItemsSource="{Binding SubItems}" Margin="10,20,0,0"

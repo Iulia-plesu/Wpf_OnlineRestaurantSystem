@@ -8,7 +8,7 @@ namespace Wpf_OnlineRestaurantSystem.Converters
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            return (value is bool flag && flag) ? 1.0 : 0.4; // 40% opac dacă nu e conectat
+            return (value is bool flag && flag) ? 1.0 : 0.4; 
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

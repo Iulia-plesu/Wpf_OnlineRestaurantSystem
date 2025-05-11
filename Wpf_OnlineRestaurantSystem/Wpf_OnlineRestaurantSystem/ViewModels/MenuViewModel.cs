@@ -37,6 +37,10 @@ namespace Wpf_OnlineRestaurantSystem.ViewModels
             OnPropertyChanged(nameof(ShowOrderButtons));
         }
 
+        public bool ShowQuantityVisibility =>
+            Session.GetCurrentUserEmail().Contains("@admin") ||
+            Session.GetCurrentUserEmail().Contains("@employee");
+
         private Category selectedCategory;
         public Category SelectedCategory
         {
