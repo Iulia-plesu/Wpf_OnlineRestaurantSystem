@@ -119,10 +119,11 @@ namespace Wpf_OnlineRestaurantSystem.Models
             {
                 con.Open();
 
+                // Select dishes
                 var dishesCmd = new SqlCommand(@"
-                    SELECT DishID, Name, Price, Description, Allergens
-                    FROM Dishes
-                    WHERE CategoryId = @CategoryId", con);
+            SELECT DishID, Name, Price, Description, Allergens
+            FROM Dishes
+            WHERE CategoryId = @CategoryId", con);
                 dishesCmd.Parameters.AddWithValue("@CategoryId", categoryId);
 
                 var reader = dishesCmd.ExecuteReader();
@@ -140,10 +141,11 @@ namespace Wpf_OnlineRestaurantSystem.Models
                 }
                 reader.Close();
 
+                // Select menus (fără DiscountPercentage)
                 var menuCmd = new SqlCommand(@"
-                    SELECT m.Id, m.Name, m.Description, m.DiscountPercentage
-                    FROM Menus m
-                    WHERE m.CategoryId = @CategoryId", con);
+            SELECT m.Id, m.Name, m.Description
+            FROM Menus m
+            WHERE m.CategoryId = @CategoryId", con);
                 menuCmd.Parameters.AddWithValue("@CategoryId", categoryId);
 
                 var menuReader = menuCmd.ExecuteReader();
@@ -156,7 +158,7 @@ namespace Wpf_OnlineRestaurantSystem.Models
                         Id = menuReader.GetInt32(0),
                         Name = menuReader.GetString(1),
                         Description = menuReader.IsDBNull(2) ? null : menuReader.GetString(2),
-                        Price = 0,  
+                        Price = 0,
                         IsMenu = true,
                         SubItems = new List<MenuItem>()
                     };
@@ -168,10 +170,7 @@ namespace Wpf_OnlineRestaurantSystem.Models
                 foreach (var menu in menus)
                 {
                     menu.SubItems = GetSubItemsForMenu(menu.Id);
-
-                    decimal totalPrice = menu.SubItems.Sum(i => i.Price);
-                    decimal discount = GetMenuDiscount(menu.Id, con);
-                    menu.Price = totalPrice * (1 - discount / 100);
+                    menu.Price = menu.SubItems.Sum(i => i.Price); // fără discount
 
                     allItems.Add(menu);
                 }

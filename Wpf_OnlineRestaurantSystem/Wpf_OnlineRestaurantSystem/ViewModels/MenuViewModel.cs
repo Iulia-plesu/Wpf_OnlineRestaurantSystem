@@ -1,6 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Windows.Input;
 using Wpf_OnlineRestaurantSystem.Models;
 
 
@@ -11,6 +12,16 @@ namespace Wpf_OnlineRestaurantSystem.ViewModels
         public ObservableCollection<Category> Categories { get; set; }
         public ObservableCollection<MenuItem> MenuItems { get; set; }
         public ObservableCollection<MenuItem> SubItems { get; set; }
+        public ObservableCollection<MenuItem> SelectedItems { get; set; } = new();
+
+
+        public ICommand AddToOrderCommand { get; }
+
+        public ICommand RemoveFromOrderCommand { get; }
+        public ICommand ClearOrderCommand { get; }
+        public ICommand PlaceOrderCommand { get; }
+        public decimal TotalPrice => SelectedItems.Sum(item => item.Price);
+
 
         private Category selectedCategory;
         public Category SelectedCategory
@@ -39,12 +50,41 @@ namespace Wpf_OnlineRestaurantSystem.ViewModels
         public MenuViewModel()
         {
             var categoryList = CategoryDAL.GetAllCategories();
-
             categoryList.Add(new Category { Id = -1, Name = "Menus" });
 
             Categories = new ObservableCollection<Category>(categoryList);
             MenuItems = new ObservableCollection<MenuItem>();
             SubItems = new ObservableCollection<MenuItem>();
+            SelectedItems = new ObservableCollection<MenuItem>();
+
+            AddToOrderCommand = new RelayCommand(_ => AddSelectedItem());
+
+            SelectedCategory = Categories.FirstOrDefault(c => c.Name == "Menus") ?? Categories.FirstOrDefault();
+        }
+
+        private void AddSelectedItem()
+        {
+            if (SelectedItem == null) return;
+
+            var itemToAdd = new MenuItem
+            {
+                Id = SelectedItem.Id,
+                Name = SelectedItem.Name,
+                Description = SelectedItem.Description,
+                IsMenu = SelectedItem.IsMenu,
+                Price = SelectedItem.Price
+            };
+
+            // Aplică reducere dacă este meniu
+            if (itemToAdd.IsMenu)
+            {
+                double discount = Properties.Settings.Default.DiscountPercentage;
+                itemToAdd.Price *= (decimal)(1 - discount / 100);
+            }
+
+            SelectedItems.Add(itemToAdd);
+            OnPropertyChanged(nameof(SelectedItems));
+            OnPropertyChanged(nameof(TotalPrice));
         }
 
         private void LoadMenuItems()
