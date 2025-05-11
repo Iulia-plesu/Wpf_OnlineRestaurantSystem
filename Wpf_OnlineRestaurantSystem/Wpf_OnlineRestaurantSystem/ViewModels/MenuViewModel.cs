@@ -13,7 +13,7 @@ namespace Wpf_OnlineRestaurantSystem.ViewModels
         public ObservableCollection<MenuItem> MenuItems { get; set; }
         public ObservableCollection<MenuItem> SubItems { get; set; }
         public ObservableCollection<MenuItem> SelectedItems { get; set; } = new();
-
+        
 
         public ICommand AddToOrderCommand { get; }
 
@@ -60,6 +60,7 @@ namespace Wpf_OnlineRestaurantSystem.ViewModels
             AddToOrderCommand = new RelayCommand(_ => AddSelectedItem());
 
             SelectedCategory = Categories.FirstOrDefault(c => c.Name == "Menus") ?? Categories.FirstOrDefault();
+
         }
 
         private void AddSelectedItem()
@@ -72,20 +73,25 @@ namespace Wpf_OnlineRestaurantSystem.ViewModels
                 Name = SelectedItem.Name,
                 Description = SelectedItem.Description,
                 IsMenu = SelectedItem.IsMenu,
-                Price = SelectedItem.Price
+                Price = SelectedItem.Price,
+                Allergens = SelectedItem.Allergens,
+                DiscountApplied = null
             };
 
-            // Aplică reducere dacă este meniu
             if (itemToAdd.IsMenu)
             {
                 double discount = Properties.Settings.Default.DiscountPercentage;
-                itemToAdd.Price *= (decimal)(1 - discount / 100);
+                if (discount > 0)
+                {
+                    itemToAdd.DiscountApplied = discount;
+                    itemToAdd.Price -= itemToAdd.Price * ((decimal)discount / 100);
+                }
             }
 
             SelectedItems.Add(itemToAdd);
-            OnPropertyChanged(nameof(SelectedItems));
             OnPropertyChanged(nameof(TotalPrice));
         }
+
 
         private void LoadMenuItems()
         {

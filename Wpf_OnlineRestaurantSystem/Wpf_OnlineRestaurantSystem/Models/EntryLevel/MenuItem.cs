@@ -9,6 +9,7 @@
         public bool IsMenu { get; set; }  
         public string? Allergens { get; set; }
 
-        public List<MenuItem>? SubItems { get; set; }  
+        public List<MenuItem>? SubItems { get; set; }
+        public double? DiscountApplied { get; set; }
     }
 }
