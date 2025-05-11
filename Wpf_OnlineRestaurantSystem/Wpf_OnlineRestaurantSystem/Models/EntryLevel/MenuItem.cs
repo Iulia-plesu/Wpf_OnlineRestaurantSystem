@@ -11,5 +11,7 @@
 
         public List<MenuItem>? SubItems { get; set; }
         public double? DiscountApplied { get; set; }
+        public string TotalQuantity { get; set; } // Schimbat de la int la string
+
     }
 }

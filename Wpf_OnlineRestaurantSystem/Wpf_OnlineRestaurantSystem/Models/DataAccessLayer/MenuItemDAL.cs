@@ -21,36 +21,42 @@ namespace Wpf_OnlineRestaurantSystem.Models
                 if (categoryId == -1)
                 {
                     cmd = new SqlCommand(@"
-                SELECT 
-                    m.id AS Id,
-                    m.name AS Name,
-                    0.0 AS Price,
-                    m.description AS Description,
-                    1 AS IsMenu
-                FROM Menus m", con);
+                        SELECT 
+                            m.id AS Id,
+                            m.name AS Name,
+                            0.0 AS Price,
+                            m.description AS Description,
+                            1 AS IsMenu,
+                            '0' AS TotalQuantity,
+                            NULL AS Allergens
+                        FROM Menus m", con);
                 }
                 else
                 {
                     cmd = new SqlCommand(@"
-                SELECT 
-                    d.DishID AS Id,
-                    d.Name,
-                    d.Price,
-                    d.Description,
-                    0 AS IsMenu
-                FROM Dishes d
-                WHERE d.CategoryId = @CategoryId AND d.IsPartOfMenu = 0  -- exclude dishes that are part of menu
+                        SELECT 
+                            d.DishID AS Id,
+                            d.Name,
+                            d.Price,
+                            d.Description,
+                            0 AS IsMenu,
+                            d.TotalQuantity,
+                            d.Allergens
+                        FROM Dishes d
+                        WHERE d.CategoryId = @CategoryId AND d.IsPartOfMenu = 0
 
-                UNION ALL
+                        UNION ALL
 
-                SELECT 
-                    m.id AS Id,
-                    m.name AS Name,
-                    0.0 AS Price,
-                    m.description AS Description,
-                    1 AS IsMenu
-                FROM Menus m
-                WHERE m.CategoryId = @CategoryId", con);
+                        SELECT 
+                            m.id AS Id,
+                            m.name AS Name,
+                            0.0 AS Price,
+                            m.description AS Description,
+                            1 AS IsMenu,
+                            '0' AS TotalQuantity,
+                            NULL AS Allergens
+                        FROM Menus m
+                        WHERE m.CategoryId = @CategoryId", con);
 
                     cmd.Parameters.AddWithValue("@CategoryId", categoryId);
                 }
@@ -64,7 +70,9 @@ namespace Wpf_OnlineRestaurantSystem.Models
                         Name = reader.GetString(1),
                         Price = reader.GetDecimal(2),
                         Description = reader.IsDBNull(3) ? null : reader.GetString(3),
-                        IsMenu = reader.GetInt32(4) == 1
+                        IsMenu = reader.GetInt32(4) == 1,
+                        TotalQuantity = reader.IsDBNull(5) ? "0" : reader.GetString(5),
+                        Allergens = reader.IsDBNull(6) ? null : reader.GetString(6)
                     });
                 }
             }
@@ -86,7 +94,8 @@ namespace Wpf_OnlineRestaurantSystem.Models
                         d.Price,
                         d.Description,
                         0 AS IsMenu,
-                        d.Allergens
+                        d.Allergens,
+                        d.TotalQuantity
                     FROM MenuItems mi
                     INNER JOIN Dishes d ON mi.DishId = d.DishID
                     WHERE mi.MenuId = @MenuId", con);
@@ -103,7 +112,8 @@ namespace Wpf_OnlineRestaurantSystem.Models
                         Price = reader.GetDecimal(2),
                         Description = reader.IsDBNull(3) ? null : reader.GetString(3),
                         IsMenu = false,
-                        Allergens = reader.IsDBNull(5) ? null : reader.GetString(5)
+                        Allergens = reader.IsDBNull(5) ? null : reader.GetString(5),
+                        TotalQuantity = reader.IsDBNull(6) ? "0" : reader.GetString(6)
                     });
                 }
             }
@@ -120,7 +130,7 @@ namespace Wpf_OnlineRestaurantSystem.Models
                 con.Open();
 
                 var dishesCmd = new SqlCommand(@"
-                    SELECT DishID, Name, Price, Description, Allergens
+                    SELECT DishID, Name, Price, Description, Allergens, TotalQuantity
                     FROM Dishes
                     WHERE CategoryId = @CategoryId AND IsPartOfMenu = 0", con);
                 dishesCmd.Parameters.AddWithValue("@CategoryId", categoryId);
@@ -135,16 +145,16 @@ namespace Wpf_OnlineRestaurantSystem.Models
                         Price = reader.GetDecimal(2),
                         Description = reader.IsDBNull(3) ? null : reader.GetString(3),
                         Allergens = reader.IsDBNull(4) ? null : reader.GetString(4),
-                        IsMenu = false
+                        TotalQuantity = reader.IsDBNull(5) ? "0" : reader.GetString(5),
+                        IsMenu = false,
                     });
                 }
                 reader.Close();
 
-                // Select menus (fără DiscountPercentage)
                 var menuCmd = new SqlCommand(@"
-            SELECT m.Id, m.Name, m.Description
-            FROM Menus m
-            WHERE m.CategoryId = @CategoryId", con);
+                    SELECT m.Id, m.Name, m.Description
+                    FROM Menus m
+                    WHERE m.CategoryId = @CategoryId", con);
                 menuCmd.Parameters.AddWithValue("@CategoryId", categoryId);
 
                 var menuReader = menuCmd.ExecuteReader();
@@ -159,6 +169,7 @@ namespace Wpf_OnlineRestaurantSystem.Models
                         Description = menuReader.IsDBNull(2) ? null : menuReader.GetString(2),
                         Price = 0,
                         IsMenu = true,
+                        TotalQuantity = "0",
                         SubItems = new List<MenuItem>()
                     };
 
@@ -169,21 +180,12 @@ namespace Wpf_OnlineRestaurantSystem.Models
                 foreach (var menu in menus)
                 {
                     menu.SubItems = GetSubItemsForMenu(menu.Id);
-                    menu.Price = menu.SubItems.Sum(i => i.Price); // fără discount
-
+                    menu.Price = menu.SubItems.Sum(i => i.Price);
                     allItems.Add(menu);
                 }
             }
 
             return allItems;
-        }
-
-        private static decimal GetMenuDiscount(int menuId, SqlConnection con)
-        {
-            var cmd = new SqlCommand("SELECT DiscountPercentage FROM Menus WHERE Id = @Id", con);
-            cmd.Parameters.AddWithValue("@Id", menuId);
-            object result = cmd.ExecuteScalar();
-            return result != null ? Convert.ToDecimal(result) : 0;
         }
     }
 }

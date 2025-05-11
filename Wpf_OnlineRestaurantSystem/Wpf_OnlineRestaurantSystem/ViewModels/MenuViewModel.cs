@@ -13,10 +13,6 @@ namespace Wpf_OnlineRestaurantSystem.ViewModels
     public class MenuViewModel : INotifyPropertyChanged
     {
         public bool IsUserLoggedIn => Session.GetCurrentUserId() != -1;
-        private void NotifyUserStatusChanged()
-        {
-            OnPropertyChanged(nameof(IsUserLoggedIn));
-        }
 
         public ObservableCollection<Category> Categories { get; set; }
         public ObservableCollection<MenuItem> MenuItems { get; set; }
@@ -31,6 +27,15 @@ namespace Wpf_OnlineRestaurantSystem.ViewModels
         public ICommand PlaceOrderCommand { get; }
         public decimal TotalPrice => SelectedItems.Sum(order => order.TotalPrice);
 
+        public bool ShowOrderButtons =>
+         !Session.GetCurrentUserEmail().Contains("@admin") &&
+         !Session.GetCurrentUserEmail().Contains("@employee");
+
+        private void NotifyUserStatusChanged()
+        {
+            OnPropertyChanged(nameof(IsUserLoggedIn));
+            OnPropertyChanged(nameof(ShowOrderButtons));
+        }
 
         private Category selectedCategory;
         public Category SelectedCategory

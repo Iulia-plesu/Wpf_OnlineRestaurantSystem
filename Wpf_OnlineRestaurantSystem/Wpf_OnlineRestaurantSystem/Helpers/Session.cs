@@ -9,5 +9,10 @@ namespace Wpf_OnlineRestaurantSystem.Helpers
         {
             return CurrentUser?.Id ?? -1;
         }
+        public static string GetCurrentUserEmail()
+        {
+            return CurrentUser?.Email ?? string.Empty;
+        }
+
     }
 }
