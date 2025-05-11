@@ -3,7 +3,7 @@ using System.Data;
 using Microsoft.Data.SqlClient;
 using System.Security.Cryptography;
 using System.Text;
-using Wpf_OnlineRestaurantSystem.Models.EntryLevel;
+using Wpf_OnlineRestaurantSystem.Models;
 
 namespace Wpf_OnlineRestaurantSystem.Models
 {

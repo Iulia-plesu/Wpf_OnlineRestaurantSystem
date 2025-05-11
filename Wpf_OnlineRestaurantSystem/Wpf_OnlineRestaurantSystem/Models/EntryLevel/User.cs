@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Wpf_OnlineRestaurantSystem.Models.EntryLevel
+namespace Wpf_OnlineRestaurantSystem.Models
 {
     public class User
     {

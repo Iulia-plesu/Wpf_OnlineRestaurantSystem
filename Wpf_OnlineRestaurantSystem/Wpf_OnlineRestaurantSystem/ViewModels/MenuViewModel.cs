@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Input;
+using Wpf_OnlineRestaurantSystem.Helpers;
 using Wpf_OnlineRestaurantSystem.Models;
 using Wpf_OnlineRestaurantSystem.Views;
 
@@ -69,10 +70,29 @@ namespace Wpf_OnlineRestaurantSystem.ViewModels
         }
         private void PlaceOrder()
         {
-            var statusWindow = new OrderStatusWindow();
-            statusWindow.Show(); // non-modal
-            currentWindow.Close();
+            try
+            {
+                int currentUserId = Session.GetCurrentUserId(); // Acces corect la ID-ul userului
+                if (currentUserId == -1)
+                {
+                    MessageBox.Show("Utilizatorul nu este autentificat.");
+                    return;
+                }
+
+                OrderDAL.SaveOrder(currentUserId, SelectedItems.ToList());
+
+                MessageBox.Show("Comanda a fost plasată cu succes!");
+                var statusWindow = new OrderStatusWindow();
+                statusWindow.Show();
+                currentWindow.Close();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Eroare la plasarea comenzii: " + ex.Message);
+            }
         }
+
+
 
 
 

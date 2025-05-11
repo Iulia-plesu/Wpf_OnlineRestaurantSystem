@@ -45,6 +45,7 @@ namespace Wpf_OnlineRestaurantSystem.ViewModels
             var user = UserDAL.GetUserByEmailAndPassword(Email, Password);
             if (user != null)
             {
+
                 Helpers.Session.CurrentUser = user;
 
                 Message = $"Bun venit, {user.FirstName}!";
