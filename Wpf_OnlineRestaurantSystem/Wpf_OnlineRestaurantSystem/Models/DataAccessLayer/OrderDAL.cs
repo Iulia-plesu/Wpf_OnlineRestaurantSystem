@@ -153,6 +153,62 @@ namespace Wpf_OnlineRestaurantSystem.Models
 
             return quantityStr;
         }
+        public static List<UserOrder> GetUserOrders(int userId)
+        {
+            var orders = new List<UserOrder>();
+
+            using var con = HelperDAL.Connection();
+            con.Open();
+
+            var cmd = new SqlCommand(@"
+        SELECT 
+            o.OrderID, 
+            o.Status, 
+            o.OrderDate, 
+            o.TotalAmount,
+            d.Name AS DishName, 
+            oi.Quantity,
+            oi.UnitPrice
+        FROM Orders o
+        JOIN OrderItems oi ON o.OrderID = oi.OrderID
+        JOIN Dishes d ON oi.DishID = d.DishID
+        WHERE o.UserID = @UserID
+        ORDER BY o.OrderDate DESC, o.OrderID", con);
+
+            cmd.Parameters.AddWithValue("@UserID", userId);
+
+            using var reader = cmd.ExecuteReader();
+
+            var currentOrderId = -1;
+            UserOrder currentOrder = null;
+
+            while (reader.Read())
+            {
+                int orderId = (int)reader["OrderID"];
+                if (orderId != currentOrderId)
+                {
+                    currentOrder = new UserOrder
+                    {
+                        OrderId = orderId,
+                        Status = reader["Status"].ToString(),
+                        OrderDate = (DateTime)reader["OrderDate"],
+                        TotalAmount = (decimal)reader["TotalAmount"],
+                        Items = new List<string>()
+                    };
+                    orders.Add(currentOrder);
+                    currentOrderId = orderId;
+                }
+
+                string dishName = reader["DishName"].ToString();
+                int quantity = (int)reader["Quantity"];
+                decimal price = (decimal)reader["UnitPrice"];
+
+                string itemLine = $"{dishName} x{quantity} - {price:$} each";
+                currentOrder.Items.Add(itemLine);
+            }
+
+            return orders;
+        }
 
     }
 }

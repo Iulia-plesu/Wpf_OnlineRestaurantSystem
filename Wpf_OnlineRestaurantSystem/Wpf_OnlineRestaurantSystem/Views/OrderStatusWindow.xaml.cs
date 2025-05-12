@@ -11,7 +11,9 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using Wpf_OnlineRestaurantSystem.Models;
 using Wpf_OnlineRestaurantSystem.ViewModels;
+using Wpf_OnlineRestaurantSystem.Helpers;
 
 namespace Wpf_OnlineRestaurantSystem.Views
 {
@@ -23,7 +25,7 @@ namespace Wpf_OnlineRestaurantSystem.Views
         public OrderStatusWindow()
         {
             InitializeComponent();
-            DataContext = new OrderStatusViewModel();
+            DataContext = new OrderStatusViewModel(Session.GetCurrentUserId());
         }
     }
 }
