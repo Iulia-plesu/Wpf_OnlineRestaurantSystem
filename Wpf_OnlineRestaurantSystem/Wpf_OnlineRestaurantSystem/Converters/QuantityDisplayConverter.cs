@@ -8,12 +8,12 @@ namespace Wpf_OnlineRestaurantSystem.Converters
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (value == null) return "Quantity available: 0";
+            if (value == null) return " ";
 
             string quantity = value.ToString();
 
             if (string.IsNullOrWhiteSpace(quantity))
-                return "Quantity available: 0";
+                return " ";
 
             if (int.TryParse(quantity, out int plainNumber))
                 return $"Quantity available: {plainNumber}";
