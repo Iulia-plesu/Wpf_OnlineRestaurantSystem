@@ -11,5 +11,6 @@
         <conv:BoolToOpacityConverter x:Key="BoolToOpacityConverter"/>
         <conv:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter"/>
         <conv:PasswordBoxEmptyToVisibilityConverter x:Key="PasswordBoxEmptyToVisibilityConverter"/>
+        <conv:QuantityDisplayConverter x:Key="QuantityDisplayConverter"/>
     </Application.Resources>
 </Application>

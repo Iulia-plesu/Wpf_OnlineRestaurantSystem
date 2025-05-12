@@ -56,10 +56,10 @@ namespace Wpf_OnlineRestaurantSystem.Models
                 {
                     con.Open();
                     using (SqlCommand cmd = new SqlCommand(@"
-                INSERT INTO Users 
-                (Username, FullName, Email, PhoneNumber, Address, PasswordHash, Role, CreatedAt)
-                VALUES 
-                (@Username, @FullName, @Email, @PhoneNumber, @Address, @PasswordHash, @Role, GETDATE())", con))
+                        INSERT INTO Users 
+                        (Username, FullName, Email, PhoneNumber, Address, PasswordHash, Role, CreatedAt)
+                        VALUES 
+                        (@Username, @FullName, @Email, @PhoneNumber, @Address, @PasswordHash, @Role, GETDATE())", con))
                     {
                         cmd.Parameters.AddWithValue("@Username", newUser.FirstName);
                         cmd.Parameters.AddWithValue("@FullName", newUser.LastName); 
@@ -67,7 +67,7 @@ namespace Wpf_OnlineRestaurantSystem.Models
                         cmd.Parameters.AddWithValue("@PhoneNumber", newUser.PhoneNumber);
                         cmd.Parameters.AddWithValue("@Address", newUser.Address);
                         cmd.Parameters.AddWithValue("@PasswordHash", newUser.Password);
-                        cmd.Parameters.AddWithValue("@Role", "Customer"); 
+                        cmd.Parameters.AddWithValue("@Role", "User"); 
 
                         int rows = cmd.ExecuteNonQuery();
                         return rows > 0;

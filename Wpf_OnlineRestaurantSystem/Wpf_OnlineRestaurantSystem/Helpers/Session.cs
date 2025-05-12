@@ -13,6 +13,10 @@ namespace Wpf_OnlineRestaurantSystem.Helpers
         {
             return CurrentUser?.Email ?? string.Empty;
         }
+        public static string GetCurrentUserRole()
+        {
+            return CurrentUser?.Role ?? "Customer";
+        }
 
     }
 }
