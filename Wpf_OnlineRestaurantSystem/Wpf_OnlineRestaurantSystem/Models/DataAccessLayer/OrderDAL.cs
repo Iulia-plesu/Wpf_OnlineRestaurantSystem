@@ -203,7 +203,7 @@ namespace Wpf_OnlineRestaurantSystem.Models
                 int quantity = (int)reader["Quantity"];
                 decimal price = (decimal)reader["UnitPrice"];
 
-                string itemLine = $"{dishName} x{quantity} - {price:$} each";
+                string itemLine = $"{dishName} x{quantity}";
                 currentOrder.Items.Add(itemLine);
             }
 

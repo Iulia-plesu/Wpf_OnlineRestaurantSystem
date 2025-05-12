@@ -8,6 +8,7 @@
         Title="MenuWindow" Height="500" Width="900">
 
     <Window.Resources>
+        <!-- Style for Menu Items -->
         <Style x:Key="MenuItemStyle" TargetType="ListBoxItem">
             <Style.Triggers>
                 <DataTrigger Binding="{Binding IsAvailable}" Value="false">
@@ -17,135 +18,182 @@
             </Style.Triggers>
         </Style>
 
+        <!-- Converter to toggle visibility based on null or empty text -->
+        <local:NullToVisibilityConverter x:Key="NullToVisibilityConverter" />
     </Window.Resources>
 
     <Grid Margin="10">
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="200"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="2*"/>
-        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <!-- For search box -->
+            <RowDefinition Height="*"/>
+            <!-- For main content -->
+        </Grid.RowDefinitions>
 
-        <!-- Categories -->
-        <ComboBox 
-            Grid.Column="0"
-            ItemsSource="{Binding Categories}"
-            SelectedItem="{Binding SelectedCategory, Mode=TwoWay}"
-            DisplayMemberPath="Name"
-            Margin="10,10,10,406" />
+        <!-- Search Box (first row) -->
+        <TextBox Grid.Row="0" Grid.ColumnSpan="3" 
+                 Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                 Margin="10" Padding="5"
+                 VerticalContentAlignment="Center"
+                 FontSize="14">
+            <TextBox.Template>
+                <ControlTemplate TargetType="TextBox">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
 
-        <!-- Menu Items in Selected Category -->
-        <ListBox Grid.Column="1"
-                 ItemsSource="{Binding MenuItems}" 
-                 SelectedItem="{Binding SelectedItem, Mode=TwoWay}"
-                 ItemContainerStyle="{StaticResource MenuItemStyle}"
-                 Margin="10">
-            <ListBox.ItemTemplate>
-                <DataTemplate>
-                    <StackPanel>
-                        <TextBlock Text="{Binding Name}" />
-                        <TextBlock Text="Out of Stock" 
-                                   Foreground="Red"
-                                   Visibility="{Binding IsAvailable, Converter={StaticResource InverseBoolToVisibilityConverter}}"/>
-                    </StackPanel>
-                </DataTemplate>
-            </ListBox.ItemTemplate>
-        </ListBox>
+                        <!-- Placeholder Text -->
+                        <TextBlock x:Name="Placeholder"
+                                   Text="Search dishes or menus..."
+                                   IsHitTestVisible="False"
+                                   VerticalAlignment="Center"
+                                   HorizontalAlignment="Left"
+                                   Margin="5,0,0,0"
+                                   Foreground="Gray"
+                                   Visibility="{Binding Text, RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource NullToVisibilityConverter}}"/>
 
-        <!-- Right Column with Scrollable Details and Button -->
-        <Grid Grid.Column="2" Margin="10">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
+                        <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1">
+                            <ScrollViewer x:Name="PART_ContentHost"/>
+                        </Border>
+                    </Grid>
+                </ControlTemplate>
+            </TextBox.Template>
 
-            <!-- Scrollable Selected Item Details -->
-            <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto">
-                <StackPanel DataContext="{Binding SelectedItem}"
-                            Visibility="{Binding ShowOrderButtons, Converter={StaticResource BoolToVisibilityConverter}}">
-                    <Button Content="Logout"
-                            HorizontalAlignment="Right"
-                            VerticalAlignment="Top" 
-                            Width="80" Height="30"
-                            Margin="0,0,10,0"
-                            Click="Logout_Click"
-                            Visibility="{Binding ShowOrderButtons, Converter={StaticResource BoolToVisibilityConverter}}"/>
+            <TextBox.InputBindings>
+                <KeyBinding Key="Escape" Command="{Binding ClearSearchCommand}"/>
+            </TextBox.InputBindings>
+        </TextBox>
 
-                    <TextBlock Text="Detalii:" FontWeight="Bold" FontSize="16" Margin="0,0,0,10"/>
-                    <TextBlock Text="{Binding Name}" FontWeight="Bold" FontSize="14"/>
-                    <TextBlock Text="{Binding Description}" TextWrapping="Wrap" Margin="0,5,0,5"/>
-                    <TextBlock Text="{Binding Price, StringFormat={}{0:C}}" Margin="0,0,0,5"/>
-                    <TextBlock Text="{Binding Allergens}" TextWrapping="Wrap"/>
-                    <TextBlock Text="{Binding TotalQuantity, Converter={StaticResource QuantityDisplayConverter}}"
-                               Margin="0,5,0,5"
-                               Visibility="{Binding DataContext.ShowOrderButtons, 
-                                            RelativeSource={RelativeSource AncestorType=Window}, 
-                                            Converter={StaticResource InverseBoolToVisibilityConverter}}"/>
+        <!-- Main Content (second row) -->
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="200"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="2*"/>
+            </Grid.ColumnDefinitions>
 
-                    <!-- Subitems for Menus -->
-                    <ItemsControl ItemsSource="{Binding SubItems}" Margin="10,20,0,0"
-                                  Visibility="{Binding IsMenu, Converter={StaticResource BoolToVisibilityConverter}}">
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <Border BorderThickness="1" BorderBrush="Gray" Padding="5" Margin="0,5">
-                                    <StackPanel>
-                                        <TextBlock Text="{Binding Name}" FontWeight="SemiBold"/>
-                                        <TextBlock Text="{Binding Description}" FontStyle="Italic"/>
-                                        <TextBlock Text="{Binding Price, StringFormat={}{0:C}}" />
-                                        <TextBlock Text="{Binding Allergens}" FontStyle="Italic" Foreground="DarkRed"/>
-                                        <TextBlock Text="{Binding TotalQuantity, Converter={StaticResource QuantityDisplayConverter}}"
-                                                   Margin="0,5,0,0"
-                                                   Visibility="{Binding DataContext.ShowOrderButtons, 
-                                                                RelativeSource={RelativeSource AncestorType=Window}, 
-                                                                Converter={StaticResource InverseBoolToVisibilityConverter}}"/>
-                                        <TextBlock Text="Out of Stock" 
-                                                   Foreground="Red"
-                                                   Visibility="{Binding IsAvailable, Converter={StaticResource InverseBoolToVisibilityConverter}}"/>
-                                    </StackPanel>
-                                </Border>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-                </StackPanel>
-            </ScrollViewer>
+            <!-- Categories -->
+            <ComboBox Grid.Column="0"
+                     ItemsSource="{Binding Categories}"
+                     SelectedItem="{Binding SelectedCategory, Mode=TwoWay}"
+                     DisplayMemberPath="Name"
+                     Margin="10,0,10,369" />
 
-            <!-- Add to Order Button -->
-            <Button Grid.Row="1" Content="Add to Order"
-                    Command="{Binding AddToOrderCommand}"
-                    Visibility="{Binding ShowOrderButtons, Converter={StaticResource BoolToVisibilityConverter}}"
-                    Height="30" Margin="0,10,0,0"/>
-        </Grid>
-
-        <!-- Selected items and total -->
-        <StackPanel Grid.Row="1" Grid.ColumnSpan="3" Orientation="Vertical" Margin="10" VerticalAlignment="Bottom"
-                    Visibility="{Binding ShowOrderButtons, Converter={StaticResource BoolToVisibilityConverter}}">
-            <TextBlock Text="Selected Items:" FontWeight="Bold" FontSize="14" Margin="0,10,0,5"/>
-
-            <ItemsControl ItemsSource="{Binding SelectedItems}">
-                <ItemsControl.ItemTemplate>
+            <!-- Menu Items in Selected Category -->
+            <ListBox Grid.Column="1"
+                     ItemsSource="{Binding MenuItems}" 
+                     SelectedItem="{Binding SelectedItem, Mode=TwoWay}"
+                     ItemContainerStyle="{StaticResource MenuItemStyle}"
+                     Margin="10">
+                <ListBox.ItemTemplate>
                     <DataTemplate>
-                        <StackPanel Orientation="Vertical" Margin="0,2">
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="{Binding Quantity}" FontWeight="Bold" Margin="0,0,5,0"/>
-                                <TextBlock Text=" x " FontWeight="Bold"/>
-                                <TextBlock Text="{Binding Item.Name}" Margin="5,0"/>
-                                <TextBlock Text="{Binding TotalPrice, StringFormat= - {0:C}}" Margin="10,0,0,0"/>
-                            </StackPanel>
-                            <TextBlock Text="{Binding Item.DiscountApplied, StringFormat=Discount: {0}%}"
-                                       Foreground="Green"
-                                       Visibility="{Binding Item.DiscountApplied, Converter={StaticResource NullToVisibilityConverter}}"
-                                       Margin="20,0,0,0"/>
+                        <StackPanel>
+                            <TextBlock Text="{Binding Name}" />
+                            <TextBlock Text="Out of Stock" 
+                                       Foreground="Red"
+                                       Visibility="{Binding IsAvailable, Converter={StaticResource InverseBoolToVisibilityConverter}}"/>
                         </StackPanel>
                     </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
+                </ListBox.ItemTemplate>
+            </ListBox>
 
-            <TextBlock Text="{Binding TotalPrice, StringFormat=Total: {0:C}}"
-                       FontWeight="Bold" FontSize="16" Margin="0,10,0,0"/>
-            <Button Content="Place Order"
-                    Height="30"
-                    Command="{Binding PlaceOrderCommand}"
-                    Width="136"/>
-        </StackPanel>
+            <!-- Right Column with Scrollable Details and Button -->
+            <Grid Grid.Column="2" Margin="10">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <!-- Scrollable Selected Item Details -->
+                <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto">
+                    <StackPanel DataContext="{Binding SelectedItem}"
+                                Visibility="{Binding ShowOrderButtons, Converter={StaticResource BoolToVisibilityConverter}}">
+                        <Button Content="Logout"
+                                HorizontalAlignment="Right"
+                                VerticalAlignment="Top" 
+                                Width="80" Height="30"
+                                Margin="0,0,10,0"
+                                Click="Logout_Click"
+                                Visibility="{Binding ShowOrderButtons, Converter={StaticResource BoolToVisibilityConverter}}"/>
+
+                        <TextBlock Text="Detalii:" FontWeight="Bold" FontSize="16" Margin="0,0,0,10"/>
+                        <TextBlock Text="{Binding Name}" FontWeight="Bold" FontSize="14"/>
+                        <TextBlock Text="{Binding Description}" TextWrapping="Wrap" Margin="0,5,0,5"/>
+                        <TextBlock Text="{Binding Price, StringFormat={}{0:C}}" Margin="0,0,0,5"/>
+                        <TextBlock Text="{Binding Allergens}" TextWrapping="Wrap"/>
+                        <TextBlock Text="{Binding TotalQuantity, Converter={StaticResource QuantityDisplayConverter}}"
+                                   Margin="0,5,0,5"
+                                   Visibility="{Binding DataContext.ShowOrderButtons, 
+                                                RelativeSource={RelativeSource AncestorType=Window}, 
+                                                Converter={StaticResource InverseBoolToVisibilityConverter}}"/>
+
+                        <!-- Subitems for Menus -->
+                        <ItemsControl ItemsSource="{Binding SubItems}" Margin="10,20,0,0"
+                                      Visibility="{Binding IsMenu, Converter={StaticResource BoolToVisibilityConverter}}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border BorderThickness="1" BorderBrush="Gray" Padding="5" Margin="0,5">
+                                        <StackPanel>
+                                            <TextBlock Text="{Binding Name}" FontWeight="SemiBold"/>
+                                            <TextBlock Text="{Binding Description}" FontStyle="Italic"/>
+                                            <TextBlock Text="{Binding Price, StringFormat={}{0:C}}" />
+                                            <TextBlock Text="{Binding Allergens}" FontStyle="Italic" Foreground="DarkRed"/>
+                                            <TextBlock Text="{Binding TotalQuantity, Converter={StaticResource QuantityDisplayConverter}}"
+                                                       Margin="0,5,0,0"
+                                                       Visibility="{Binding DataContext.ShowOrderButtons, 
+                                                                    RelativeSource={RelativeSource AncestorType=Window}, 
+                                                                    Converter={StaticResource InverseBoolToVisibilityConverter}}"/>
+                                            <TextBlock Text="Out of Stock" 
+                                                       Foreground="Red"
+                                                       Visibility="{Binding IsAvailable, Converter={StaticResource InverseBoolToVisibilityConverter}}"/>
+                                        </StackPanel>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </ScrollViewer>
+
+                <!-- Add to Order Button -->
+                <Button Grid.Row="1" Content="Add to Order"
+                        Command="{Binding AddToOrderCommand}"
+                        Visibility="{Binding ShowOrderButtons, Converter={StaticResource BoolToVisibilityConverter}}"
+                        Height="30" Margin="0,10,291,0"/>
+            </Grid>
+
+            <!-- Selected items and total -->
+            <StackPanel Grid.Column="2" Grid.Row="1" Orientation="Vertical" Margin="10" VerticalAlignment="Bottom"
+                        Visibility="{Binding ShowOrderButtons, Converter={StaticResource BoolToVisibilityConverter}}">
+                <TextBlock Text="Selected Items:" FontWeight="Bold" FontSize="14" Margin="0,10,0,5"/>
+
+                <ItemsControl ItemsSource="{Binding SelectedItems}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Vertical" Margin="0,2">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="{Binding Quantity}" FontWeight="Bold" Margin="0,0,5,0"/>
+                                    <TextBlock Text=" x " FontWeight="Bold"/>
+                                    <TextBlock Text="{Binding Item.Name}" Margin="5,0"/>
+                                    <TextBlock Text="{Binding TotalPrice, StringFormat= - {0:C}}" Margin="10,0,0,0"/>
+                                </StackPanel>
+                                <TextBlock Text="{Binding Item.DiscountApplied, StringFormat=Discount: {0}%}"
+                                           Foreground="Green"
+                                           Visibility="{Binding Item.DiscountApplied, Converter={StaticResource NullToVisibilityConverter}}"
+                                           Margin="20,0,0,0"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+                <TextBlock Text="{Binding TotalPrice, StringFormat=Total: {0:C}}"
+                           FontWeight="Bold" FontSize="16" Margin="0,10,0,0"/>
+                <Button Content="Place Order"
+                        Height="30"
+                        Command="{Binding PlaceOrderCommand}"
+                        Width="136"/>
+            </StackPanel>
+        </Grid>
     </Grid>
 </Window>

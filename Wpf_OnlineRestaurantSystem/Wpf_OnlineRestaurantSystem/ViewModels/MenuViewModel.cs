@@ -25,6 +25,7 @@ namespace Wpf_OnlineRestaurantSystem.ViewModels
         public ICommand RemoveFromOrderCommand { get; }
         public ICommand ClearOrderCommand { get; }
         public ICommand PlaceOrderCommand { get; }
+        public ICommand ClearSearchCommand { get; }
         public decimal TotalPrice => SelectedItems.Sum(order => order.TotalPrice);
 
         public bool ShowOrderButtons =>
@@ -61,6 +62,20 @@ namespace Wpf_OnlineRestaurantSystem.ViewModels
                 LoadSubItemsOrDetails();
             }
         }
+
+        private string searchText;
+        public string SearchText
+        {
+            get => searchText;
+            set
+            {
+                searchText = value;
+                OnPropertyChanged();
+                FilterMenuItems();
+            }
+        }
+        private ObservableCollection<MenuItem> allMenuItems;
+
         private readonly Window currentWindow;
         public MenuViewModel(Window window)
         {
@@ -68,6 +83,7 @@ namespace Wpf_OnlineRestaurantSystem.ViewModels
 
             var categoryList = CategoryDAL.GetAllCategories();
             categoryList.Add(new Category { Id = -1, Name = "Menus" });
+            categoryList.Add(new Category { Id = -2, Name = "All Dishes" });
 
             Categories = new ObservableCollection<Category>(categoryList);
             MenuItems = new ObservableCollection<MenuItem>();
@@ -76,10 +92,67 @@ namespace Wpf_OnlineRestaurantSystem.ViewModels
 
             AddToOrderCommand = new RelayCommand(_ => AddSelectedItem(), _ => IsUserLoggedIn);
             PlaceOrderCommand = new RelayCommand(_ => PlaceOrder(), _ => IsUserLoggedIn);
+            ClearSearchCommand = new RelayCommand(_ =>
+            {
+                SearchText = string.Empty;
+            });
 
+            allMenuItems = new ObservableCollection<MenuItem>();
 
-            SelectedCategory = Categories.FirstOrDefault(c => c.Name == "Menus") ?? Categories.FirstOrDefault();
+            SelectedCategory = Categories.FirstOrDefault(c => c.Name == "All Dishes") ?? Categories.FirstOrDefault();
 
+        }
+        private void LoadMenuItems()
+        {
+            allMenuItems.Clear();
+            if (SelectedCategory == null) return;
+
+            List<MenuItem> items;
+            if (SelectedCategory.Id == -1) 
+            {
+                items = CategoryDAL.GetAllCategories()
+                    .Where(c => c.Id > 0) 
+                    .SelectMany(cat => MenuItemDAL.GetAllItemsByCategoryId(cat.Id))
+                    .Where(item => item.IsMenu)
+                    .ToList();
+            }
+            else if (SelectedCategory.Id == -2)
+            {
+                items = CategoryDAL.GetAllCategories()
+                    .Where(c => c.Id > 0) 
+                    .SelectMany(cat => MenuItemDAL.GetAllItemsByCategoryId(cat.Id))
+                    .Where(item => !item.IsMenu) 
+                    .ToList();
+            }
+            else
+            {
+                items = MenuItemDAL.GetAllItemsByCategoryId(SelectedCategory.Id);
+            }
+
+            foreach (var item in items)
+            {
+                allMenuItems.Add(item);
+            }
+
+            FilterMenuItems();
+        }
+        private void FilterMenuItems()
+        {
+            if (string.IsNullOrWhiteSpace(SearchText))
+            {
+                MenuItems = new ObservableCollection<MenuItem>(allMenuItems);
+            }
+            else
+            {
+                var searchLower = SearchText.ToLower();
+                var filtered = allMenuItems.Where(item =>
+                    item.Name.ToLower().Contains(searchLower) ||
+                    (item.IsMenu && item.SubItems?.Any(sub => sub.Name.ToLower().Contains(searchLower)) == true)
+                ).ToList();
+
+                MenuItems = new ObservableCollection<MenuItem>(filtered);
+            }
+            OnPropertyChanged(nameof(MenuItems));
         }
         private void PlaceOrder()
         {
@@ -166,27 +239,7 @@ namespace Wpf_OnlineRestaurantSystem.ViewModels
                 }
             }
         }
-        private void LoadMenuItems()
-        {
-            MenuItems.Clear();
-            if (SelectedCategory == null) return;
-            if (SelectedCategory.Id == -1)
-            {
-                var allMenus = CategoryDAL.GetAllCategories()
-                    .SelectMany(cat => MenuItemDAL.GetAllItemsByCategoryId(cat.Id))
-                    .Where(item => item.IsMenu);
-
-                foreach (var menu in allMenus)
-                    MenuItems.Add(menu);
-            }
-            else
-            {
-                foreach (var item in MenuItemDAL.GetAllItemsByCategoryId(SelectedCategory.Id))
-                    MenuItems.Add(item);
-            }
-
-        }
-
+        
         private void LoadSubItemsOrDetails()
         {
             SubItems.Clear();
