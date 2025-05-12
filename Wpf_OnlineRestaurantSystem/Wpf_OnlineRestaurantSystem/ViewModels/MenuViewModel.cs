@@ -21,7 +21,7 @@ namespace Wpf_OnlineRestaurantSystem.ViewModels
         
 
         public ICommand AddToOrderCommand { get; }
-
+        public ICommand OpenOrderStatusCommand { get; }
         public ICommand RemoveFromOrderCommand { get; }
         public ICommand ClearOrderCommand { get; }
         public ICommand PlaceOrderCommand { get; }
@@ -96,11 +96,17 @@ namespace Wpf_OnlineRestaurantSystem.ViewModels
             {
                 SearchText = string.Empty;
             });
+            OpenOrderStatusCommand = new RelayCommand(_ => OpenOrderStatus(), _ => IsUserLoggedIn);
 
             allMenuItems = new ObservableCollection<MenuItem>();
 
             SelectedCategory = Categories.FirstOrDefault(c => c.Name == "All Dishes") ?? Categories.FirstOrDefault();
 
+        }
+        private void OpenOrderStatus()
+        {
+            var statusWindow = new OrderStatusWindow();
+            statusWindow.Show();
         }
         private void LoadMenuItems()
         {

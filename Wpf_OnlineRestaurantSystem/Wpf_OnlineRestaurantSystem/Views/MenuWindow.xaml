@@ -110,6 +110,28 @@
                 <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto">
                     <StackPanel DataContext="{Binding SelectedItem}"
                                 Visibility="{Binding ShowOrderButtons, Converter={StaticResource BoolToVisibilityConverter}}">
+                        <Button Content="Order Status"
+                                HorizontalAlignment="Right"
+                                VerticalAlignment="Top" 
+                                Width="100" Height="30"
+                                Margin="0,0,10,10"
+                                Command="{Binding OpenOrderStatusCommand}"
+                                Visibility="{Binding ShowOrderButtons, Converter={StaticResource BoolToVisibilityConverter}}">
+                            <Button.Style>
+                                <Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+                                    <Setter Property="Background" Value="#FFDDDDDD"/>
+                                    <!-- Culoare gri deschis -->
+                                    <Setter Property="Opacity" Value="0.7"/>
+                                    <!-- Opacitate redusă -->
+                                    <Style.Triggers>
+                                        <Trigger Property="IsEnabled" Value="True">
+                                            <Setter Property="Background" Value="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"/>
+                                            <Setter Property="Opacity" Value="1"/>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
                         <Button Content="Logout"
                                 HorizontalAlignment="Right"
                                 VerticalAlignment="Top" 

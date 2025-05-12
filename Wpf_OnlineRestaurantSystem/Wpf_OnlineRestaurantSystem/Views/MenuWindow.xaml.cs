@@ -14,8 +14,14 @@ namespace Wpf_OnlineRestaurantSystem.Views
         {
             var loginWindow = new LoginWindow();
             loginWindow.Show();
-            Application.Current.MainWindow = loginWindow; // setăm noua MainWindow
+            Application.Current.MainWindow = loginWindow; 
             this.Close();
+
+        }
+        private void OpenOrderStatusWindow(object sender, RoutedEventArgs e)
+        {
+            OrderStatusWindow orderStatusWindow = new OrderStatusWindow();
+            orderStatusWindow.Show();
 
         }
 
