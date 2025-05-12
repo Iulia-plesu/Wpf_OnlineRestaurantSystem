@@ -3,6 +3,7 @@ using System.Windows;
 using Microsoft.Data.SqlClient;
 using Wpf_OnlineRestaurantSystem.Models;
 using System.Linq;
+using System.Globalization;
 
 namespace Wpf_OnlineRestaurantSystem.Models
 {
@@ -79,7 +80,6 @@ namespace Wpf_OnlineRestaurantSystem.Models
 
             return items;
         }
-
         public static List<MenuItem> GetSubItemsForMenu(int menuId)
         {
             var subItems = new List<MenuItem>();
@@ -93,8 +93,8 @@ namespace Wpf_OnlineRestaurantSystem.Models
                         d.Name,
                         d.Price,
                         d.Description,
-                        0 AS IsMenu,
                         d.Allergens,
+                        d.QuantityPerPortion,
                         d.TotalQuantity
                     FROM MenuItems mi
                     INNER JOIN Dishes d ON mi.DishId = d.DishID
@@ -105,22 +105,27 @@ namespace Wpf_OnlineRestaurantSystem.Models
                 var reader = cmd.ExecuteReader();
                 while (reader.Read())
                 {
+                    var totalQuantity = reader.IsDBNull(6) ? "0" : reader.GetString(6);
+                    var quantityPerPortion = reader.IsDBNull(5) ? "0" : reader.GetString(5);
+                    var isAvailable = CalculateAvailability(totalQuantity, quantityPerPortion);
+
                     subItems.Add(new MenuItem
                     {
                         Id = reader.GetInt32(0),
                         Name = reader.GetString(1),
                         Price = reader.GetDecimal(2),
                         Description = reader.IsDBNull(3) ? null : reader.GetString(3),
+                        Allergens = reader.IsDBNull(4) ? null : reader.GetString(4),
+                        TotalQuantity = totalQuantity,
+                        QuantityPerPortion = quantityPerPortion,
                         IsMenu = false,
-                        Allergens = reader.IsDBNull(5) ? null : reader.GetString(5),
-                        TotalQuantity = reader.IsDBNull(6) ? "0" : reader.GetString(6)
+                        IsAvailable = isAvailable
                     });
                 }
             }
 
             return subItems;
         }
-
         public static List<MenuItem> GetAllItemsByCategoryId(int categoryId)
         {
             var allItems = new List<MenuItem>();
@@ -130,26 +135,32 @@ namespace Wpf_OnlineRestaurantSystem.Models
                 con.Open();
 
                 var dishesCmd = new SqlCommand(@"
-                    SELECT DishID, Name, Price, Description, Allergens, TotalQuantity
+                    SELECT DishID, Name, Price, Description, Allergens, TotalQuantity, QuantityPerPortion
                     FROM Dishes
                     WHERE CategoryId = @CategoryId AND IsPartOfMenu = 0", con);
                 dishesCmd.Parameters.AddWithValue("@CategoryId", categoryId);
 
-                var reader = dishesCmd.ExecuteReader();
-                while (reader.Read())
+                var dishesReader = dishesCmd.ExecuteReader();
+                while (dishesReader.Read())
                 {
+                    var totalQuantity = dishesReader.IsDBNull(5) ? "0" : dishesReader.GetString(5);
+                    var quantityPerPortion = dishesReader.IsDBNull(6) ? "0" : dishesReader.GetString(6);
+                    var isAvailable = CalculateAvailability(totalQuantity, quantityPerPortion);
+
                     allItems.Add(new MenuItem
                     {
-                        Id = reader.GetInt32(0),
-                        Name = reader.GetString(1),
-                        Price = reader.GetDecimal(2),
-                        Description = reader.IsDBNull(3) ? null : reader.GetString(3),
-                        Allergens = reader.IsDBNull(4) ? null : reader.GetString(4),
-                        TotalQuantity = reader.IsDBNull(5) ? "0" : reader.GetString(5),
+                        Id = dishesReader.GetInt32(0),
+                        Name = dishesReader.GetString(1),
+                        Price = dishesReader.GetDecimal(2),
+                        Description = dishesReader.IsDBNull(3) ? null : dishesReader.GetString(3),
+                        Allergens = dishesReader.IsDBNull(4) ? null : dishesReader.GetString(4),
+                        TotalQuantity = totalQuantity,
+                        QuantityPerPortion = quantityPerPortion,
                         IsMenu = false,
+                        IsAvailable = isAvailable
                     });
                 }
-                reader.Close();
+                dishesReader.Close();
 
                 var menuCmd = new SqlCommand(@"
                     SELECT m.Id, m.Name, m.Description
@@ -170,9 +181,9 @@ namespace Wpf_OnlineRestaurantSystem.Models
                         Price = 0,
                         IsMenu = true,
                         TotalQuantity = "0",
-                        SubItems = new List<MenuItem>()
+                        SubItems = new List<MenuItem>(),
+                        IsAvailable = true 
                     };
-
                     menus.Add(menu);
                 }
                 menuReader.Close();
@@ -181,11 +192,41 @@ namespace Wpf_OnlineRestaurantSystem.Models
                 {
                     menu.SubItems = GetSubItemsForMenu(menu.Id);
                     menu.Price = menu.SubItems.Sum(i => i.Price);
+
+                    menu.IsAvailable = menu.SubItems.Count > 0 && menu.SubItems.All(i => i.IsAvailable);
+
                     allItems.Add(menu);
                 }
             }
 
             return allItems;
         }
+
+        private static bool CalculateAvailability(string totalQuantityStr, string quantityPerPortionStr)
+        {
+            if (string.IsNullOrWhiteSpace(totalQuantityStr) || string.IsNullOrWhiteSpace(quantityPerPortionStr))
+                return false;
+
+            double total = ExtractNumericValue(totalQuantityStr);
+            double perPortion = ExtractNumericValue(quantityPerPortionStr);
+
+            return total >= perPortion;
+        }
+
+        private static double ExtractNumericValue(string quantityStr)
+        {
+            var numericChars = quantityStr.Where(c => char.IsDigit(c) || c == '.').ToArray();
+            if (numericChars.Length == 0) return 0;
+
+            string numericString = new string(numericChars);
+            if (double.TryParse(numericString, NumberStyles.Any, CultureInfo.InvariantCulture, out double value))
+            {
+                return value;
+            }
+            return 0;
+        }
+
     }
+
+
 }

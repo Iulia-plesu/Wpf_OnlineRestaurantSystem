@@ -85,7 +85,7 @@ namespace Wpf_OnlineRestaurantSystem.ViewModels
         {
             try
             {
-                int currentUserId = Session.GetCurrentUserId(); // Acces corect la ID-ul userului
+                int currentUserId = Session.GetCurrentUserId(); 
                 if (currentUserId == -1)
                 {
                     MessageBox.Show("Utilizatorul nu este autentificat.");
@@ -105,10 +105,6 @@ namespace Wpf_OnlineRestaurantSystem.ViewModels
             }
         }
 
-
-
-
-
         private void AddSelectedItem()
         {
             if (!IsUserLoggedIn)
@@ -117,9 +113,8 @@ namespace Wpf_OnlineRestaurantSystem.ViewModels
                 return;
             }
 
-            if (SelectedItem == null) return;
+            if (SelectedItem == null || !SelectedItem.IsAvailable) return;
 
-            // Check if item already exists in the order
             var existingOrder = SelectedItems.FirstOrDefault(o => o.Item.Id == SelectedItem.Id);
             if (existingOrder != null)
             {
@@ -135,7 +130,8 @@ namespace Wpf_OnlineRestaurantSystem.ViewModels
                     IsMenu = SelectedItem.IsMenu,
                     Price = SelectedItem.Price,
                     Allergens = SelectedItem.Allergens,
-                    DiscountApplied = null
+                    DiscountApplied = null,
+                    IsAvailable = SelectedItem.IsAvailable
                 };
 
                 if (itemToAdd.IsMenu)
@@ -157,7 +153,19 @@ namespace Wpf_OnlineRestaurantSystem.ViewModels
 
             OnPropertyChanged(nameof(TotalPrice));
         }
+        public void RefreshMenuItems()
+        {
+            if (SelectedCategory != null)
+            {
+                var currentSelectedId = SelectedItem?.Id;
+                LoadMenuItems();
 
+                if (currentSelectedId != null)
+                {
+                    SelectedItem = MenuItems.FirstOrDefault(i => i.Id == currentSelectedId);
+                }
+            }
+        }
         private void LoadMenuItems()
         {
             MenuItems.Clear();
