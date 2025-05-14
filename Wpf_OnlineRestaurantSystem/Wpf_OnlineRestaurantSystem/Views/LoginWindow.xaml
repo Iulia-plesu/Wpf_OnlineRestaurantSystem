@@ -1,44 +1,242 @@
 ﻿<Window x:Class="Wpf_OnlineRestaurantSystem.Views.LoginWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Login" Height="350" Width="525" WindowStartupLocation="CenterScreen">
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        Title="Login" 
+        Height="550" 
+        Width="700"
+        WindowStartupLocation="CenterScreen"
+        FontFamily="Georgia">
+
+    <!-- Add standard window controls -->
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="32"
+                      ResizeBorderThickness="5"
+                      UseAeroCaptionButtons="True"/>
+    </WindowChrome.WindowChrome>
+
+    <Window.Resources>
+        <!-- Wine-inspired button style -->
+        <Style x:Key="WineButtonStyle" TargetType="Button">
+            <Setter Property="Background">
+                <Setter.Value>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                        <GradientStop Color="#FFF5F0FA" Offset="0"/>
+                        <GradientStop Color="#FFE8D8E8" Offset="1"/>
+                    </LinearGradientBrush>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="BorderBrush" Value="#FFD4A5C8"/>
+            <Setter Property="Foreground" Value="#FF5A3A4A"/>
+            <Setter Property="BorderThickness" Value="1.2"/>
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="FontWeight" Value="Medium"/>
+            <Setter Property="FontStyle" Value="Italic"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border" 
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="10"
+                                SnapsToDevicePixels="True">
+                            <ContentPresenter HorizontalAlignment="Center" 
+                                            VerticalAlignment="Center"
+                                            Margin="10,5"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background">
+                                    <Setter.Value>
+                                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                            <GradientStop Color="#FFFAF0FF" Offset="0"/>
+                                            <GradientStop Color="#FFE8C8D5" Offset="1"/>
+                                        </LinearGradientBrush>
+                                    </Setter.Value>
+                                </Setter>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Style for input fields -->
+        <Style TargetType="TextBox">
+            <Setter Property="Padding" Value="8"/>
+            <Setter Property="Background" Value="#FFFEFEFE"/>
+            <Setter Property="BorderBrush" Value="#FFD4A5C8"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Foreground" Value="#FF5A3A4A"/>
+            <Setter Property="Height" Value="40"/>
+            <Setter Property="Width" Value="250"/>
+        </Style>
+
+        <!-- Style for password boxes -->
+        <Style TargetType="PasswordBox">
+            <Setter Property="Padding" Value="8"/>
+            <Setter Property="Background" Value="#FFFEFEFE"/>
+            <Setter Property="BorderBrush" Value="#FFD4A5C8"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Foreground" Value="#FF5A3A4A"/>
+            <Setter Property="Height" Value="40"/>
+            <Setter Property="Width" Value="250"/>
+        </Style>
+
+        <!-- Style for labels -->
+        <Style TargetType="TextBlock" x:Key="LabelStyle">
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="Foreground" Value="#FF7A4A5A"/>
+            <Setter Property="FontStyle" Value="Italic"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Width" Value="100"/>
+        </Style>
+    </Window.Resources>
+
     <Grid>
+        <!-- Background with subtle wine color -->
+        <Grid.Background>
+            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                <GradientStop Color="#FFF9F0F5" Offset="0"/>
+                <GradientStop Color="#FFFAF5FF" Offset="1"/>
+            </LinearGradientBrush>
+        </Grid.Background>
 
-        <!-- Etichetă Email -->
-        <TextBlock Text="Email:" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="100,75,0,0" FontSize="14"/>
+        <!-- Title bar with window controls -->
+        <Grid VerticalAlignment="Top" Height="32">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
 
-        <!-- Casetă text Email -->
-        <TextBox x:Name="EmailTextBox" 
-                 HorizontalAlignment="Left" 
-                 VerticalAlignment="Top" 
-                 Width="200" Height="25" 
-                 Margin="150,70,0,0" 
-                 Text="{Binding Email}" />
+            <TextBlock Text="Login" 
+                       VerticalAlignment="Center"
+                       Margin="10,0"
+                       Foreground="#FF7A4A5A"/>
 
-        <!-- Etichetă Parolă -->
-        <TextBlock Text="Parolă:" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="100,125,0,0" FontSize="14"/>
+            <StackPanel Orientation="Horizontal" Grid.Column="1">
+                <Button Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"
+                        Command="{Binding Source={x:Static SystemCommands.MinimizeWindowCommand}}"
+                        CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}"
+                        Content="─"
+                        FontSize="14"
+                        Width="40"/>
+                <Button Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"
+                        Command="{Binding Source={x:Static SystemCommands.CloseWindowCommand}}"
+                        CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}"
+                        Content="✕"
+                        FontSize="14"
+                        Width="40"/>
+            </StackPanel>
+        </Grid>
 
-        <!-- Casetă parolă -->
-        <PasswordBox x:Name="PasswordBox" 
-                     HorizontalAlignment="Left" 
-                     VerticalAlignment="Top" 
-                     Width="200" Height="25" 
-                     Margin="150,120,0,0" 
-                     PasswordChanged="PasswordBox_PasswordChanged" />
+        <!-- Main content -->
+        <Grid Margin="0,32,0,0">
+            <!-- Decorative images -->
+            <Image Source="/Images/wine_glasses.jpg" 
+                   Width="465" Opacity="0.6"
+                   HorizontalAlignment="Left" VerticalAlignment="Bottom"
+                   Margin="0,0,0,-12" Height="528"/>
 
-        <!-- Buton Login -->
-        <Button Content="Login" 
-                HorizontalAlignment="Left" 
-                VerticalAlignment="Top" 
-                Width="100" Height="30" 
-                Margin="200,180,0,0" 
-                Command="{Binding LoginCommand}" />
+            <Image Source="/Images/peony_bouquet.jpg"
+                   Width="485" Opacity="0.6"
+                   HorizontalAlignment="Right" VerticalAlignment="Bottom"
+                   Margin="0,0,-13,0" Height="535"/>
 
-        <!-- Mesaj eroare/succes -->
-        <TextBlock Text="{Binding Message}" 
-                   HorizontalAlignment="Center" 
-                   VerticalAlignment="Top" 
-                   Margin="0,230,0,0" 
-                   Foreground="Red"/>
+            <!-- Login form container -->
+            <Border CornerRadius="10" 
+                    Width="450" 
+                    Height="350"
+                    VerticalAlignment="Center"
+                    HorizontalAlignment="Center"
+                    Background="#FFFEFEFE"
+                    BorderBrush="#FFE8C8D5"
+                    BorderThickness="1"
+                    Padding="40">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Title -->
+                    <TextBlock Text="Welcome Back" 
+                               FontSize="28" 
+                               FontWeight="Light"
+                               Foreground="#FF7A4A5A"
+                               HorizontalAlignment="Center"
+                               Grid.Row="0"
+                               Margin="0,0,0,30"
+                               FontStyle="Italic"/>
+
+                    <!-- Email -->
+                    <Grid Grid.Row="1" Margin="0,0,0,20">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Text="Email:" 
+                                   Style="{StaticResource LabelStyle}"
+                                   Grid.Column="0"/>
+
+                        <TextBox x:Name="EmailTextBox" 
+                                 Grid.Column="1"
+                                 Text="{Binding Email}" Margin="0,0,-17,0" />
+                    </Grid>
+
+                    <!-- Password -->
+                    <Grid Grid.Row="2" Margin="0,0,0,30">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Text="Password:" 
+                                   Style="{StaticResource LabelStyle}"
+                                   Grid.Column="0"/>
+
+                        <PasswordBox x:Name="PasswordBox" 
+                                     Grid.Column="1"
+                                     PasswordChanged="PasswordBox_PasswordChanged" Margin="9,0,-9,0" />
+                    </Grid>
+
+                    <!-- Login Button -->
+                    <Button Content="Login" 
+                            Grid.Row="3"
+                            Style="{StaticResource WineButtonStyle}"
+                            Height="45"
+                            Width="200"
+                            HorizontalAlignment="Center"
+                            Command="{Binding LoginCommand}" />
+
+                    <!-- Message -->
+                    <TextBlock Text="{Binding Message}" 
+                               Grid.Row="4"
+                               HorizontalAlignment="Center" 
+                               VerticalAlignment="Center" 
+                               Margin="0,20,0,0" 
+                               Foreground="#FFD32F2F"
+                               TextWrapping="Wrap"/>
+
+                    <!-- Sign up link -->
+                    <TextBlock Grid.Row="5" HorizontalAlignment="Center" Margin="0,20,0,0">
+                        <Run Text="Don't have an account? "/>
+                        <Hyperlink Command="{Binding NavigateToSignUpCommand}">
+                            <Run Text="Sign up"/>
+                        </Hyperlink>
+                    </TextBlock>
+                </Grid>
+            </Border>
+        </Grid>
     </Grid>
 </Window>
