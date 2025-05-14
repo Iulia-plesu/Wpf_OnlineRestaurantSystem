@@ -25,5 +25,10 @@ namespace Wpf_OnlineRestaurantSystem.Views
 
         }
 
+        private void Admin_Click(object sender, RoutedEventArgs e)
+        {
+            AdminWindow adminWindow = new AdminWindow();
+            adminWindow.Show();
+        }
     }
 }

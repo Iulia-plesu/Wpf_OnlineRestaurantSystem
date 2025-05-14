@@ -139,6 +139,12 @@
                                 Margin="0,0,10,0"
                                 Click="Logout_Click"
                                 Visibility="{Binding ShowOrderButtons, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                        <Button Content="Admin Panel"
+                                HorizontalAlignment="Right"
+                                VerticalAlignment="Top" 
+                                Width="80" Height="30"
+                                Margin="0,0,10,0"
+                                Click="Admin_Click"/>
 
                         <TextBlock Text="Detalii:" FontWeight="Bold" FontSize="16" Margin="0,0,0,10"/>
                         <TextBlock Text="{Binding Name}" FontWeight="Bold" FontSize="14"/>

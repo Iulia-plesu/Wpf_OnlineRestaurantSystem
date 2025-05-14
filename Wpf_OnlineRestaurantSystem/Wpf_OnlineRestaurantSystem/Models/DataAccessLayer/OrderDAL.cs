@@ -209,6 +209,64 @@ namespace Wpf_OnlineRestaurantSystem.Models
 
             return orders;
         }
+        
+        public static List<AdminOrder> GetAllOrders()
+        {
+            var orders = new List<AdminOrder>();
+
+            using var con = HelperDAL.Connection();
+            con.Open();
+
+            var cmd = new SqlCommand(@"
+        SELECT 
+            o.OrderID,
+            o.Status,
+            o.OrderDate,
+            o.TotalAmount,
+            u.FullName,
+            u.Email,
+            d.Name AS DishName,
+            oi.Quantity,
+            oi.UnitPrice
+        FROM Orders o
+        JOIN Users u ON o.UserID = u.UserID
+        JOIN OrderItems oi ON o.OrderID = oi.OrderID
+        JOIN Dishes d ON oi.DishID = d.DishID
+        ORDER BY o.OrderDate DESC, o.OrderID", con);
+
+            using var reader = cmd.ExecuteReader();
+
+            var currentOrderId = -1;
+            AdminOrder currentOrder = null;
+
+            while (reader.Read())
+            {
+                int orderId = (int)reader["OrderID"];
+                if (orderId != currentOrderId)
+                {
+                    currentOrder = new AdminOrder
+                    {
+                        OrderId = orderId,
+                        Status = reader["Status"].ToString(),
+                        OrderDate = (DateTime)reader["OrderDate"],
+                        TotalAmount = (decimal)reader["TotalAmount"],
+                        CustomerName = reader["FullName"].ToString(),
+                        CustomerEmail = reader["Email"].ToString(),
+                        Items = new List<string>()
+                    };
+                    orders.Add(currentOrder);
+                    currentOrderId = orderId;
+                }
+
+                string dishName = reader["DishName"].ToString();
+                int quantity = (int)reader["Quantity"];
+
+                string itemLine = $"{dishName} x{quantity}";
+                currentOrder.Items.Add(itemLine);
+            }
+
+            return orders;
+        }
 
     }
 }

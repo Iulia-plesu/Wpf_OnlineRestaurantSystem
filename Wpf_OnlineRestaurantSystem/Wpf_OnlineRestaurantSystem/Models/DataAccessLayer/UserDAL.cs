@@ -80,6 +80,39 @@ namespace Wpf_OnlineRestaurantSystem.Models
                 return false;
             }
         }
+        public static List<User> GetNormalUsers()
+        {
+            var users = new List<User>();
+
+            using (var con = HelperDAL.Connection())
+            {
+                con.Open();
+
+                using (var cmd = new SqlCommand(@"
+            SELECT * FROM Users 
+            WHERE Email NOT LIKE '%@admin%' AND Email NOT LIKE '%@employee%'", con))
+                {
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            users.Add(new User
+                            {
+                                Id = (int)reader["UserID"],
+                                FirstName = reader["Username"].ToString(),
+                                LastName = reader["FullName"].ToString(),
+                                Email = reader["Email"].ToString(),
+                                PhoneNumber = reader["PhoneNumber"].ToString(),
+                                Address = reader["Address"].ToString(),
+                                Password = reader["PasswordHash"].ToString()
+                            });
+                        }
+                    }
+                }
+            }
+
+            return users;
+        }
 
 
     }

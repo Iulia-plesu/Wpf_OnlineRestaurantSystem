@@ -1,0 +1,49 @@
+﻿<Window x:Class="Wpf_OnlineRestaurantSystem.Views.AdminWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Wpf_OnlineRestaurantSystem.Views"
+        mc:Ignorable="d"
+        Title="Admin Orders" Height="600" Width="900"
+        WindowStartupLocation="CenterScreen">
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="10">
+        <ItemsControl ItemsSource="{Binding UsersWithOrders}">
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <StackPanel Margin="0,0,0,20">
+                        <!-- User Info -->
+                        <TextBlock Text="{Binding FullName}" FontWeight="Bold" FontSize="16"/>
+                        <TextBlock Text="{Binding Email}" FontStyle="Italic" Foreground="Gray" Margin="0,0,0,10"/>
+
+                        <!-- Orders -->
+                        <ItemsControl ItemsSource="{Binding Orders}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border BorderBrush="LightGray" BorderThickness="1" Padding="10" Margin="0,0,0,10">
+                                        <StackPanel>
+                                            <TextBlock Text="{Binding OrderId, StringFormat=Order ID: {0}}" FontWeight="Bold"/>
+                                            <TextBlock Text="{Binding OrderDate, StringFormat=Date: {0:G}}"/>
+                                            <TextBlock Text="{Binding Status, StringFormat=Status: {0}}" Foreground="DarkBlue"/>
+                                            <TextBlock Text="{Binding TotalAmount, StringFormat=Total: {0:C}}" FontWeight="Bold" />
+
+                                            <!-- Items in Order -->
+                                            <ItemsControl ItemsSource="{Binding Items}" Margin="0,5,0,0">
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <TextBlock Text="{Binding}" Margin="5,0,0,0"/>
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
+                                        </StackPanel>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+    </ScrollViewer>
+</Window>
