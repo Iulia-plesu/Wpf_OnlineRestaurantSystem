@@ -2,174 +2,290 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:local="clr-namespace:Wpf_OnlineRestaurantSystem.Converters"
-        Title="Create New Account" Height="550" Width="400"
-        WindowStartupLocation="CenterScreen">
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        Title="Create New Account" 
+        Height="650" Width="850"
+        WindowStartupLocation="CenterScreen"
+        FontFamily="Georgia">
+
+    <!-- Add standard window controls -->
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="32"
+                      ResizeBorderThickness="5"
+                      UseAeroCaptionButtons="True"/>
+    </WindowChrome.WindowChrome>
 
     <Window.Resources>
-
-        <!-- Style for input fields -->
-        <Style TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}">
-            <Setter Property="Padding" Value="8"/>
-            <Setter Property="Background" Value="White"/>
-            <Setter Property="BorderBrush" Value="#FFABADB3"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="FontSize" Value="14"/>
+        <!-- Wine-inspired button style -->
+        <Style x:Key="WineButtonStyle" TargetType="Button">
+            <Setter Property="Background">
+                <Setter.Value>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                        <GradientStop Color="#FFF5F0FA" Offset="0"/>
+                        <GradientStop Color="#FFE8D8E8" Offset="1"/>
+                    </LinearGradientBrush>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="BorderBrush" Value="#FFD4A5C8"/>
+            <Setter Property="Foreground" Value="#FF5A3A4A"/>
+            <Setter Property="BorderThickness" Value="1.2"/>
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="FontWeight" Value="Medium"/>
+            <Setter Property="FontStyle" Value="Italic"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border" 
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="10"
+                                SnapsToDevicePixels="True">
+                            <ContentPresenter HorizontalAlignment="Center" 
+                                            VerticalAlignment="Center"
+                                            Margin="10,5"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background">
+                                    <Setter.Value>
+                                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                            <GradientStop Color="#FFFAF0FF" Offset="0"/>
+                                            <GradientStop Color="#FFE8C8D5" Offset="1"/>
+                                        </LinearGradientBrush>
+                                    </Setter.Value>
+                                </Setter>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
         </Style>
 
-        <!-- Style for password boxes -->
-        <Style TargetType="Grid" x:Key="PasswordBoxContainerStyle">
+        <!-- Style for input fields -->
+        <Style TargetType="TextBox">
+            <Setter Property="Padding" Value="8"/>
+            <Setter Property="Background" Value="#FFFEFEFE"/>
+            <Setter Property="BorderBrush" Value="#FFD4A5C8"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Foreground" Value="#FF5A3A4A"/>
+            <Setter Property="Height" Value="40"/>
             <Setter Property="Margin" Value="0,0,0,15"/>
         </Style>
 
-        <!-- Style for the register button -->
-        <Style TargetType="Button" x:Key="RegisterButtonStyle">
-            <Setter Property="Background" Value="#FF0078D7"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Padding" Value="10"/>
-            <Setter Property="BorderThickness" Value="0"/>
+        <!-- Style for password boxes -->
+        <Style TargetType="PasswordBox">
+            <Setter Property="Padding" Value="8"/>
+            <Setter Property="Background" Value="#FFFEFEFE"/>
+            <Setter Property="BorderBrush" Value="#FFD4A5C8"/>
+            <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Foreground" Value="#FF5A3A4A"/>
+            <Setter Property="Height" Value="40"/>
+            <Setter Property="Margin" Value="0,0,0,15"/>
+        </Style>
+
+        <!-- Style for section headers -->
+        <Style TargetType="TextBlock" x:Key="SectionHeaderStyle">
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Margin" Value="0,15,0,10"/>
+            <Setter Property="Foreground" Value="#FF7A4A5A"/>
+            <Setter Property="FontStyle" Value="Italic"/>
+        </Style>
+
+        <!-- Style for placeholder text -->
+        <Style TargetType="TextBlock" x:Key="PlaceholderStyle">
+            <Setter Property="Foreground" Value="#FFB58E9E"/>
+            <Setter Property="Margin" Value="8,8,0,0"/>
+            <Setter Property="VerticalAlignment" Value="Top"/>
+            <Setter Property="IsHitTestVisible" Value="False"/>
+            <Setter Property="FontStyle" Value="Italic"/>
+        </Style>
+
+        <!-- Hyperlink style -->
+        <Style TargetType="Hyperlink">
+            <Setter Property="TextDecorations" Value="None"/>
+            <Setter Property="Foreground" Value="#FF7A4A5A"/>
+            <Setter Property="FontWeight" Value="Medium"/>
         </Style>
     </Window.Resources>
 
-    <Grid Background="#FFFAFAFA">
-        <ScrollViewer VerticalScrollBarVisibility="Auto">
-            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Width="320" Margin="20">
-                <!-- Title -->
-                <TextBlock Text="Create New Account" 
-                           FontSize="22" 
-                           FontWeight="Bold"
-                           HorizontalAlignment="Center" 
-                           Margin="0,0,0,30"/>
+    <Grid>
+        <!-- Background with subtle wine color -->
+        <Grid.Background>
+            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                <GradientStop Color="#FFF9F0F5" Offset="0"/>
+                <GradientStop Color="#FFFAF5FF" Offset="1"/>
+            </LinearGradientBrush>
+        </Grid.Background>
 
-                <!-- SECTION 1: PERSONAL INFORMATION -->
-                <TextBlock Text="Personal Information" 
-                           FontWeight="SemiBold" 
-                           Margin="0,0,0,10"
-                           Foreground="#FF0078D7"/>
+        <!-- Title bar with window controls -->
+        <Grid VerticalAlignment="Top" Height="32">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
 
-                <!-- First Name - Enter your given name -->
-                <Grid Margin="0,0,0,15">
-                    <TextBox x:Name="FirstNameTextBox"/>
-                    <TextBlock Text="First Name (e.g., John)"
-                               Foreground="Gray"
-                               Margin="8,8,0,0"
-                               VerticalAlignment="Top"
-                               IsHitTestVisible="False"
-                               Visibility="{Binding Text, ElementName=FirstNameTextBox, Converter={StaticResource StringNullOrEmptyToVisibilityConverter}}"/>
-                </Grid>
+            <TextBlock Text="Create New Account" 
+                       VerticalAlignment="Center"
+                       Margin="10,0"
+                       Foreground="#FF7A4A5A"/>
 
-                <!-- Last Name - Enter your family name -->
-                <Grid Margin="0,0,0,15">
-                    <TextBox x:Name="LastNameTextBox"/>
-                    <TextBlock Text="Last Name (e.g., Smith)"
-                               Foreground="Gray"
-                               Margin="8,8,0,0"
-                               VerticalAlignment="Top"
-                               IsHitTestVisible="False"
-                               Visibility="{Binding Text, ElementName=LastNameTextBox, Converter={StaticResource StringNullOrEmptyToVisibilityConverter}}"/>
-                </Grid>
-
-                <!-- SECTION 2: CONTACT INFORMATION -->
-                <TextBlock Text="Contact Information" 
-                           FontWeight="SemiBold" 
-                           Margin="0,15,0,10"
-                           Foreground="#FF0078D7"/>
-
-                <!-- Email - Enter your email address -->
-                <Grid Margin="0,0,0,15">
-                    <TextBox x:Name="EmailTextBox"/>
-                    <TextBlock Text="Email (e.g., john.smith@example.com)"
-                               Foreground="Gray"
-                               Margin="8,8,0,0"
-                               VerticalAlignment="Top"
-                               IsHitTestVisible="False"
-                               Visibility="{Binding Text, ElementName=EmailTextBox, Converter={StaticResource StringNullOrEmptyToVisibilityConverter}}"/>
-                </Grid>
-
-                <!-- Phone - Enter your phone number -->
-                <Grid Margin="0,0,0,15">
-                    <TextBox x:Name="PhoneTextBox"/>
-                    <TextBlock Text="Phone Number (e.g., 0712345678)"
-                               Foreground="Gray"
-                               Margin="8,8,0,0"
-                               VerticalAlignment="Top"
-                               IsHitTestVisible="False"
-                               Visibility="{Binding Text, ElementName=PhoneTextBox, Converter={StaticResource StringNullOrEmptyToVisibilityConverter}}"/>
-                </Grid>
-
-                <!-- Address - Enter your physical address -->
-                <Grid Margin="0,0,0,15">
-                    <TextBox x:Name="AddressTextBox"/>
-                    <TextBlock Text="Address (e.g., 123 Main Street)"
-                               Foreground="Gray"
-                               Margin="8,8,0,0"
-                               VerticalAlignment="Top"
-                               IsHitTestVisible="False"
-                               Visibility="{Binding Text, ElementName=AddressTextBox, Converter={StaticResource StringNullOrEmptyToVisibilityConverter}}"/>
-                </Grid>
-
-                <!-- SECTION 3: SECURITY -->
-                <TextBlock Text="Security" 
-                           FontWeight="SemiBold" 
-                           Margin="0,15,0,10"
-                           Foreground="#FF0078D7"/>
-
-                <!-- Password - Create a strong password -->
-                <Grid Style="{StaticResource PasswordBoxContainerStyle}">
-                    <PasswordBox x:Name="PasswordBox" Padding="8"/>
-                    <TextBlock Text="Create Password (min. 6 characters)"
-                               Foreground="Gray"
-                               Margin="8,8,0,0"
-                               VerticalAlignment="Top"
-                               IsHitTestVisible="False">
-                        <TextBlock.Visibility>
-                            <MultiBinding Converter="{StaticResource PasswordBoxEmptyToVisibilityConverter}">
-                                <Binding ElementName="PasswordBox" Path="Password"/>
-                            </MultiBinding>
-                        </TextBlock.Visibility>
-                    </TextBlock>
-                </Grid>
-
-                <!-- Confirm Password - Re-enter your password -->
-                <Grid Style="{StaticResource PasswordBoxContainerStyle}">
-                    <PasswordBox x:Name="ConfirmPasswordBox" Padding="8"/>
-                    <TextBlock Text="Confirm Password"
-                               Foreground="Gray"
-                               Margin="8,8,0,0"
-                               VerticalAlignment="Top"
-                               IsHitTestVisible="False">
-                        <TextBlock.Visibility>
-                            <MultiBinding Converter="{local:PasswordBoxEmptyToVisibilityConverter}">
-                                <Binding ElementName="ConfirmPasswordBox" Path="Password"/>
-                            </MultiBinding>
-                        </TextBlock.Visibility>
-                    </TextBlock>
-                </Grid>
-
-                <!-- Register Button -->
-                <Button x:Name="RegisterButton" 
-                        Content="Create Account" 
-                        Style="{StaticResource RegisterButtonStyle}"
-                        Height="45"
-                        Margin="0,20,0,10"
-                        Click="RegisterButton_Click"/>
-
-                <!-- Error Message -->
-                <TextBlock x:Name="ErrorMessageText" 
-                           Foreground="Red" 
-                           TextWrapping="Wrap"
-                           Margin="0,10,0,0" 
-                           Visibility="Collapsed"/>
-
-                <!-- Login Link -->
-                <TextBlock HorizontalAlignment="Center" Margin="0,20,0,0">
-                    <Run Text="Already have an account? "/>
-                    <Hyperlink TextDecorations="None" Foreground="#FF0078D7" Click="LoginLink_Click">
-                        <Run Text="Sign in"/>
-                    </Hyperlink>
-                </TextBlock>
+            <StackPanel Orientation="Horizontal" Grid.Column="1">
+                <Button Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"
+                        Command="{Binding Source={x:Static SystemCommands.MinimizeWindowCommand}}"
+                        CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}"
+                        Content="─"
+                        FontSize="14"
+                        Width="40"/>
+                <Button Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"
+                        Command="{Binding Source={x:Static SystemCommands.CloseWindowCommand}}"
+                        CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}"
+                        Content="✕"
+                        FontSize="14"
+                        Width="40"/>
             </StackPanel>
-        </ScrollViewer>
+        </Grid>
+
+        <!-- Main content -->
+        <Grid Margin="0,32,0,0">
+            <!-- Decorative images -->
+            <Image Source="/Images/wine_glasses.jpg" 
+                   Width="465" Opacity="0.6"
+                   HorizontalAlignment="Left" VerticalAlignment="Bottom"
+                   Margin="0,0,0,-12" Height="628"/>
+
+            <Image Source="/Images/peony_bouquet.jpg"
+                   Width="485" Opacity="0.6"
+                   HorizontalAlignment="Right" VerticalAlignment="Bottom"
+                   Margin="0,0,-13,0" Height="635"/>
+
+            <!-- Form container -->
+            <Border CornerRadius="10" 
+                    Width="450" 
+                    VerticalAlignment="Center"
+                    HorizontalAlignment="Center"
+                    Background="#FFFEFEFE"
+                    BorderBrush="#FFE8C8D5"
+                    BorderThickness="1"
+                    Padding="25">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <!-- Title -->
+                        <TextBlock Text="Create New Account" 
+                                   FontSize="28" 
+                                   FontWeight="Light"
+                                   Foreground="#FF7A4A5A"
+                                   HorizontalAlignment="Center" 
+                                   Margin="0,0,0,20"
+                                   FontStyle="Italic"/>
+
+                        <!-- SECTION 1: PERSONAL INFORMATION -->
+                        <TextBlock Text="Personal Information" 
+                                   Style="{StaticResource SectionHeaderStyle}"/>
+
+                        <!-- First Name - Enter your given name -->
+                        <Grid>
+                            <TextBox x:Name="FirstNameTextBox"/>
+                            <TextBlock Text="First Name (e.g., John)"
+                                       Style="{StaticResource PlaceholderStyle}"
+                                       Visibility="{Binding Text, ElementName=FirstNameTextBox, Converter={StaticResource StringNullOrEmptyToVisibilityConverter}}"/>
+                        </Grid>
+
+                        <!-- Last Name - Enter your family name -->
+                        <Grid>
+                            <TextBox x:Name="LastNameTextBox"/>
+                            <TextBlock Text="Last Name (e.g., Smith)"
+                                       Style="{StaticResource PlaceholderStyle}"
+                                       Visibility="{Binding Text, ElementName=LastNameTextBox, Converter={StaticResource StringNullOrEmptyToVisibilityConverter}}"/>
+                        </Grid>
+
+                        <!-- SECTION 2: CONTACT INFORMATION -->
+                        <TextBlock Text="Contact Information" 
+                                   Style="{StaticResource SectionHeaderStyle}"/>
+
+                        <!-- Email - Enter your email address -->
+                        <Grid>
+                            <TextBox x:Name="EmailTextBox"/>
+                            <TextBlock Text="Email (e.g., john.smith@example.com)"
+                                       Style="{StaticResource PlaceholderStyle}"
+                                       Visibility="{Binding Text, ElementName=EmailTextBox, Converter={StaticResource StringNullOrEmptyToVisibilityConverter}}"/>
+                        </Grid>
+
+                        <!-- Phone - Enter your phone number -->
+                        <Grid>
+                            <TextBox x:Name="PhoneTextBox"/>
+                            <TextBlock Text="Phone Number (e.g., 0712345678)"
+                                       Style="{StaticResource PlaceholderStyle}"
+                                       Visibility="{Binding Text, ElementName=PhoneTextBox, Converter={StaticResource StringNullOrEmptyToVisibilityConverter}}"/>
+                        </Grid>
+
+                        <!-- Address - Enter your physical address -->
+                        <Grid>
+                            <TextBox x:Name="AddressTextBox"/>
+                            <TextBlock Text="Address (e.g., 123 Main Street)"
+                                       Style="{StaticResource PlaceholderStyle}"
+                                       Visibility="{Binding Text, ElementName=AddressTextBox, Converter={StaticResource StringNullOrEmptyToVisibilityConverter}}"/>
+                        </Grid>
+
+                        <!-- SECTION 3: SECURITY -->
+                        <TextBlock Text="Security" 
+                                   Style="{StaticResource SectionHeaderStyle}"/>
+
+                        <!-- Password - Create a strong password -->
+                        <Grid>
+                            <PasswordBox x:Name="PasswordBox"/>
+                            <TextBlock Text="Create Password (min. 6 characters)"
+                                       Style="{StaticResource PlaceholderStyle}">
+                                <TextBlock.Visibility>
+                                    <MultiBinding Converter="{StaticResource PasswordBoxEmptyToVisibilityConverter}">
+                                        <Binding ElementName="PasswordBox" Path="Password"/>
+                                    </MultiBinding>
+                                </TextBlock.Visibility>
+                            </TextBlock>
+                        </Grid>
+
+                        <!-- Confirm Password - Re-enter your password -->
+                        <Grid>
+                            <PasswordBox x:Name="ConfirmPasswordBox"/>
+                            <TextBlock Text="Confirm Password"
+                                       Style="{StaticResource PlaceholderStyle}">
+                                <TextBlock.Visibility>
+                                    <MultiBinding Converter="{local:PasswordBoxEmptyToVisibilityConverter}">
+                                        <Binding ElementName="ConfirmPasswordBox" Path="Password"/>
+                                    </MultiBinding>
+                                </TextBlock.Visibility>
+                            </TextBlock>
+                        </Grid>
+
+                        <!-- Register Button -->
+                        <Button x:Name="RegisterButton" 
+                                Content="Create Account" 
+                                Style="{StaticResource WineButtonStyle}"
+                                Height="45"
+                                Margin="0,20,0,10"
+                                Click="RegisterButton_Click"/>
+
+                        <!-- Error Message -->
+                        <TextBlock x:Name="ErrorMessageText" 
+                                   Foreground="#FFD32F2F" 
+                                   TextWrapping="Wrap"
+                                   Margin="0,10,0,0" 
+                                   Visibility="Collapsed"/>
+
+                        <!-- Login Link -->
+                        <TextBlock HorizontalAlignment="Center" Margin="0,20,0,0">
+                            <Run Text="Already have an account? "/>
+                            <Hyperlink Click="LoginLink_Click">
+                                <Run Text="Sign in"/>
+                            </Hyperlink>
+                        </TextBlock>
+                    </StackPanel>
+                </ScrollViewer>
+            </Border>
+        </Grid>
     </Grid>
 </Window>
