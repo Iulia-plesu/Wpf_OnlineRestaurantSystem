@@ -5,13 +5,162 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Wpf_OnlineRestaurantSystem.Views"
         mc:Ignorable="d"
-        Title="Welcome" Height="450" Width="800" WindowStartupLocation="CenterScreen">
-    <Grid Background="#FFFAFAFA">
-        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-            <Button x:Name="LoginButton" Content="Login" Width="200" Height="50" Click="LoginButton_Click"/>
-            <Button x:Name="CreateAccountButton" Content="Create a New Account" Width="200" Height="50" Margin="0,40,0,0" Click="CreateAccountButton_Click"/>
-            <Button x:Name="GuestButton" Content="Continue as Guest" Width="200" Height="50" Margin="0,20,0,0" Click="GuestButton_Click"/>
-        </StackPanel>
+        Title="Château Rosé" 
+        Height="650" Width="850"
+        WindowStartupLocation="CenterScreen"
+        FontFamily="Georgia">
 
+    <!-- Add standard window controls -->
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="32"
+                      ResizeBorderThickness="5"
+                      UseAeroCaptionButtons="True"/>
+    </WindowChrome.WindowChrome>
+
+    <Window.Resources>
+        <!-- Wine-inspired button style -->
+        <Style x:Key="WineButtonStyle" TargetType="Button">
+            <Setter Property="Background">
+                <Setter.Value>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                        <GradientStop Color="#FFF5F0FA" Offset="0"/>
+                        <GradientStop Color="#FFE8D8E8" Offset="1"/>
+                    </LinearGradientBrush>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="BorderBrush" Value="#FFD4A5C8"/>
+            <Setter Property="Foreground" Value="#FF5A3A4A"/>
+            <Setter Property="BorderThickness" Value="1.2"/>
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="FontWeight" Value="Medium"/>
+            <Setter Property="FontStyle" Value="Italic"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border" 
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="10"
+                                SnapsToDevicePixels="True">
+                            <ContentPresenter HorizontalAlignment="Center" 
+                                            VerticalAlignment="Center"
+                                            Margin="10,5"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background">
+                                    <Setter.Value>
+                                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                            <GradientStop Color="#FFFAF0FF" Offset="0"/>
+                                            <GradientStop Color="#FFE8C8D5" Offset="1"/>
+                                        </LinearGradientBrush>
+                                    </Setter.Value>
+                                </Setter>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <!-- Background with subtle wine color -->
+        <Grid.Background>
+            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                <GradientStop Color="#FFF9F0F5" Offset="0"/>
+                <GradientStop Color="#FFFAF5FF" Offset="1"/>
+            </LinearGradientBrush>
+        </Grid.Background>
+
+        <!-- Title bar with window controls -->
+        <Grid VerticalAlignment="Top" Height="32">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <TextBlock Text="Château Rosé" 
+                       VerticalAlignment="Center"
+                       Margin="10,0"
+                       Foreground="#FF7A4A5A"/>
+
+            <StackPanel Orientation="Horizontal" Grid.Column="1">
+                <Button Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"
+                        Command="{Binding Source={x:Static SystemCommands.MinimizeWindowCommand}}"
+                        CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}"
+                        Content="─"
+                        FontSize="14"
+                        Width="40"/>
+                <Button Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"
+                        Command="{Binding Source={x:Static SystemCommands.CloseWindowCommand}}"
+                        CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}"
+                        Content="✕"
+                        FontSize="14"
+                        Width="40"/>
+            </StackPanel>
+        </Grid>
+
+        <!-- Main content -->
+        <Grid Margin="0,32,0,0">
+            <!-- Decorative images (make sure these exist in your project) -->
+            <Image Source="/Images/wine_glasses.jpg" 
+                   Width="465" Opacity="0.6"
+                   HorizontalAlignment="Left" VerticalAlignment="Bottom"
+                   Margin="0,0,0,-12" Height="628" />
+
+            <Image Source="/Images/peony_bouquet.jpg"
+                   Width="485" Opacity="0.6"
+                   HorizontalAlignment="Right" VerticalAlignment="Bottom"
+                   Margin="0,0,-13,0" Height="635"/>
+
+            <!-- Main panel -->
+            <Border CornerRadius="10" 
+                    Width="450" Height="450"
+                    VerticalAlignment="Center"
+                    HorizontalAlignment="Center"
+                    Background="#FFFEFEFE"
+                    BorderBrush="#FFE8C8D5"
+                    BorderThickness="1"
+                    Padding="20">
+                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <TextBlock Text="Château Rosé" 
+                               FontSize="36" 
+                               Foreground="#FF7A4A5A"
+                               FontWeight="Light"
+                               HorizontalAlignment="Center"
+                               FontStyle="Italic"
+                               Margin="0,0,0,20"/>
+
+                    <TextBlock Text="Fine Dining &amp; Wine"
+                               FontSize="14"
+                               Foreground="#FFB58E9E"
+                               FontStyle="Italic"
+                               HorizontalAlignment="Center"
+                               Margin="0,0,0,40"/>
+
+                    <Button x:Name="LoginButton" 
+                            Content="Sign In" 
+                            Width="220" Height="50" 
+                            Click="LoginButton_Click"
+                            Style="{StaticResource WineButtonStyle}"/>
+
+                    <Button x:Name="CreateAccountButton" 
+                            Content="Create Account" 
+                            Width="220" Height="50" 
+                            Margin="0,20,0,0" 
+                            Click="CreateAccountButton_Click"
+                            Style="{StaticResource WineButtonStyle}"/>
+
+                    <Button x:Name="GuestButton" 
+                            Content="Continue as Guest" 
+                            Width="220" Height="50" 
+                            Margin="0,20,0,0" 
+                            Click="GuestButton_Click"
+                            Style="{StaticResource WineButtonStyle}"/>
+                </StackPanel>
+            </Border>
+        </Grid>
     </Grid>
 </Window>
