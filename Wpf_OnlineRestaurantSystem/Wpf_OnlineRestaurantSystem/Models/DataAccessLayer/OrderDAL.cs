@@ -14,66 +14,87 @@ namespace Wpf_OnlineRestaurantSystem.Models
             con.Open();
 
             using var transaction = con.BeginTransaction();
-
             try
             {
-                var orderCmd = new SqlCommand(@"
-                    INSERT INTO Orders (UserID, OrderDate, Status, TotalAmount)
-                    OUTPUT INSERTED.OrderID
-                    VALUES (@UserID, GETDATE(), @Status, @TotalAmount)", con, transaction);
-
-                orderCmd.Parameters.AddWithValue("@UserID", userId);
-                orderCmd.Parameters.AddWithValue("@Status", "Pending");
-                orderCmd.Parameters.AddWithValue("@TotalAmount", items.Sum(i => i.TotalPrice));
-
-                int orderId = (int)orderCmd.ExecuteScalar();
+                // Creare DataTable pentru parametru tabelar
+                var itemTable = new DataTable();
+                itemTable.Columns.Add("DishID", typeof(int));
+                itemTable.Columns.Add("Quantity", typeof(int));
+                itemTable.Columns.Add("UnitPrice", typeof(decimal));
 
                 foreach (var item in items)
                 {
                     if (!item.Item.IsMenu)
                     {
-                        var itemCmd = new SqlCommand(@"
-                            INSERT INTO OrderItems (OrderID, DishID, Quantity, UnitPrice)
-                            VALUES (@OrderID, @DishID, @Quantity, @UnitPrice)", con, transaction);
-
-                        itemCmd.Parameters.AddWithValue("@OrderID", orderId);
-                        itemCmd.Parameters.AddWithValue("@DishID", item.Item.Id);
-                        itemCmd.Parameters.AddWithValue("@Quantity", item.Quantity);
-                        itemCmd.Parameters.AddWithValue("@UnitPrice", item.Item.Price);
-                        itemCmd.ExecuteNonQuery();
-
-                        ScadeCantitatiIngredient(item.Item.Id, item.Quantity, con, transaction);
+                        itemTable.Rows.Add(item.Item.Id, item.Quantity, item.Item.Price);
                     }
                     else
                     {
-                        var getMenuItemsCmd = new SqlCommand(@"
-                            SELECT DishID FROM MenuItems WHERE MenuID = @MenuID", con, transaction);
+                        // Obține dish-urile din meniu folosind procedura GetMenuItems
+                        var getMenuItemsCmd = new SqlCommand("GetMenuItems", con, transaction)
+                        {
+                            CommandType = CommandType.StoredProcedure
+                        };
                         getMenuItemsCmd.Parameters.AddWithValue("@MenuID", item.Item.Id);
 
-                        var dishIdsInMenu = new List<int>();
+                        var dishIds = new List<int>();
                         using (var reader = getMenuItemsCmd.ExecuteReader())
                         {
                             while (reader.Read())
-                            {
-                                dishIdsInMenu.Add((int)reader["DishID"]);
-                            }
+                                dishIds.Add(reader.GetInt32(0));
                         }
 
-                        foreach (var dishId in dishIdsInMenu)
+                        foreach (var dishId in dishIds)
                         {
-                            var subDishCmd = new SqlCommand(@"
-                                INSERT INTO OrderItems (OrderID, DishID, Quantity, UnitPrice)
-                                SELECT @OrderID, DishID, @Quantity, Price
-                                FROM Dishes WHERE DishID = @DishID", con, transaction);
+                            // Obține prețul folosind procedura GetDishPrice
+                            var getPriceCmd = new SqlCommand("GetDishPrice", con, transaction)
+                            {
+                                CommandType = CommandType.StoredProcedure
+                            };
+                            getPriceCmd.Parameters.AddWithValue("@DishID", dishId);
 
-                            subDishCmd.Parameters.AddWithValue("@OrderID", orderId);
-                            subDishCmd.Parameters.AddWithValue("@DishID", dishId);
-                            subDishCmd.Parameters.AddWithValue("@Quantity", item.Quantity);
-                            subDishCmd.ExecuteNonQuery();
+                            var priceParam = new SqlParameter("@Price", SqlDbType.Decimal)
+                            {
+                                Direction = ParameterDirection.Output,
+                                Precision = 10,
+                                Scale = 2
+                            };
+                            getPriceCmd.Parameters.Add(priceParam);
 
-                            ScadeCantitatiIngredient(dishId, item.Quantity, con, transaction);
+                            getPriceCmd.ExecuteNonQuery();
+
+                            decimal price = (decimal)priceParam.Value;
+
+                            itemTable.Rows.Add(dishId, item.Quantity, price);
                         }
                     }
+                }
+
+                // Apelare procedură SaveOrder cu parametru tabelar
+                var saveOrderCmd = new SqlCommand("SaveOrder", con, transaction)
+                {
+                    CommandType = CommandType.StoredProcedure
+                };
+                saveOrderCmd.Parameters.AddWithValue("@UserID", userId);
+                saveOrderCmd.Parameters.AddWithValue("@Status", "Pending");
+                saveOrderCmd.Parameters.AddWithValue("@TotalAmount", items.Sum(i => i.TotalPrice));
+
+                var itemsParam = saveOrderCmd.Parameters.AddWithValue("@OrderItems", itemTable);
+                itemsParam.SqlDbType = SqlDbType.Structured;
+                itemsParam.TypeName = "OrderItemTableType";
+
+                saveOrderCmd.ExecuteNonQuery();
+
+                // Scade cantitățile ingredientelor folosind procedura ScadeCantitatiIngredient
+                foreach (DataRow row in itemTable.Rows)
+                {
+                    var scadeCmd = new SqlCommand("ScadeCantitatiIngredient", con, transaction)
+                    {
+                        CommandType = CommandType.StoredProcedure
+                    };
+                    scadeCmd.Parameters.AddWithValue("@DishID", (int)row["DishID"]);
+                    scadeCmd.Parameters.AddWithValue("@Multiplier", (int)row["Quantity"]);
+                    scadeCmd.ExecuteNonQuery();
                 }
 
                 transaction.Commit();
@@ -84,189 +105,92 @@ namespace Wpf_OnlineRestaurantSystem.Models
                 throw new Exception("Eroare la salvarea comenzii: " + ex.Message);
             }
         }
-        private static void ScadeCantitatiIngredient(int dishId, int multiplier, SqlConnection con, SqlTransaction transaction)
-        {
-            var getPortionCmd = new SqlCommand(@"
-                SELECT QuantityPerPortion, TotalQuantity
-                FROM Dishes
-                WHERE DishID = @DishID", con, transaction);
-            getPortionCmd.Parameters.AddWithValue("@DishID", dishId);
 
-            using var reader = getPortionCmd.ExecuteReader();
-            if (reader.Read())
-            {
-                string quantityPerPortion = reader["QuantityPerPortion"]?.ToString();
-                string totalQuantity = reader["TotalQuantity"]?.ToString();
-
-                if (!string.IsNullOrWhiteSpace(quantityPerPortion) &&
-                    !string.IsNullOrWhiteSpace(totalQuantity))
-                {
-                    string totalToSubtract = MultiplyQuantityString(quantityPerPortion, multiplier);
-                    string updatedTotal = ScadeCantitate(totalQuantity, totalToSubtract);
-
-                    reader.Close(); 
-
-                    var updateQtyCmd = new SqlCommand(@"
-                UPDATE Dishes
-                SET TotalQuantity = @UpdatedTotal
-                WHERE DishID = @DishID", con, transaction);
-
-                    updateQtyCmd.Parameters.AddWithValue("@UpdatedTotal", updatedTotal);
-                    updateQtyCmd.Parameters.AddWithValue("@DishID", dishId);
-
-                    updateQtyCmd.ExecuteNonQuery();
-                }
-            }
-        }
-
-        private static string ScadeCantitate(string totalQuantity, string toSubtract)
-        {
-            string unitTotal = new string(totalQuantity.Where(char.IsLetter).ToArray());
-            string unitSubtract = new string(toSubtract.Where(char.IsLetter).ToArray());
-
-            if (unitTotal != unitSubtract)
-                return totalQuantity; 
-
-            string totalStr = totalQuantity.Replace(unitTotal, "").Trim();
-            string subtractStr = toSubtract.Replace(unitSubtract, "").Trim();
-
-            if (double.TryParse(totalStr, out double totalVal) &&
-                double.TryParse(subtractStr, out double subVal))
-            {
-                double result = Math.Max(totalVal - subVal, 0);
-                return $"{result}{unitTotal}";
-            }
-
-            return totalQuantity;
-        }
-
-        private static string MultiplyQuantityString(string quantityStr, int multiplier)
-        {
-            string unit = new string(quantityStr.Where(char.IsLetter).ToArray());
-            string valueStr = quantityStr.Replace(unit, "").Trim();
-
-            if (double.TryParse(valueStr, out double value))
-            {
-                double result = value * multiplier;
-                return $"{result}{unit}";
-            }
-
-            return quantityStr;
-        }
         public static List<UserOrder> GetUserOrders(int userId)
         {
             var orders = new List<UserOrder>();
-
             using var con = HelperDAL.Connection();
             con.Open();
 
-            var cmd = new SqlCommand(@"
-        SELECT 
-            o.OrderID, 
-            o.Status, 
-            o.OrderDate, 
-            o.TotalAmount,
-            d.Name AS DishName, 
-            oi.Quantity,
-            oi.UnitPrice
-        FROM Orders o
-        JOIN OrderItems oi ON o.OrderID = oi.OrderID
-        JOIN Dishes d ON oi.DishID = d.DishID
-        WHERE o.UserID = @UserID
-        ORDER BY o.OrderDate DESC, o.OrderID", con);
-
+            var cmd = new SqlCommand("GetUserOrders", con)
+            {
+                CommandType = CommandType.StoredProcedure
+            };
             cmd.Parameters.AddWithValue("@UserID", userId);
 
             using var reader = cmd.ExecuteReader();
 
-            var currentOrderId = -1;
+            int currentOrderId = -1;
             UserOrder currentOrder = null;
 
             while (reader.Read())
             {
-                int orderId = (int)reader["OrderID"];
+                int orderId = reader.GetInt32(reader.GetOrdinal("OrderID"));
                 if (orderId != currentOrderId)
                 {
                     currentOrder = new UserOrder
                     {
                         OrderId = orderId,
-                        Status = reader["Status"].ToString(),
-                        OrderDate = (DateTime)reader["OrderDate"],
-                        TotalAmount = (decimal)reader["TotalAmount"],
+                        Status = reader.GetString(reader.GetOrdinal("Status")),
+                        OrderDate = reader.GetDateTime(reader.GetOrdinal("OrderDate")),
+                        TotalAmount = reader.GetDecimal(reader.GetOrdinal("TotalAmount")),
                         Items = new List<string>()
                     };
                     orders.Add(currentOrder);
                     currentOrderId = orderId;
                 }
 
-                string dishName = reader["DishName"].ToString();
-                int quantity = (int)reader["Quantity"];
-                decimal price = (decimal)reader["UnitPrice"];
+                string dishName = reader.GetString(reader.GetOrdinal("DishName"));
+                int quantity = reader.GetInt32(reader.GetOrdinal("Quantity"));
 
-                string itemLine = $"{dishName} x{quantity}";
-                currentOrder.Items.Add(itemLine);
+                currentOrder.Items.Add($"{dishName} x{quantity}");
             }
 
             return orders;
         }
-        
+
         public static List<AdminOrder> GetAllOrders()
         {
             var orders = new List<AdminOrder>();
-
             using var con = HelperDAL.Connection();
             con.Open();
 
-            var cmd = new SqlCommand(@"
-        SELECT 
-            o.OrderID,
-            o.Status,
-            o.OrderDate,
-            o.TotalAmount,
-            u.FullName,
-            u.Email,
-            d.Name AS DishName,
-            oi.Quantity,
-            oi.UnitPrice
-        FROM Orders o
-        JOIN Users u ON o.UserID = u.UserID
-        JOIN OrderItems oi ON o.OrderID = oi.OrderID
-        JOIN Dishes d ON oi.DishID = d.DishID
-        ORDER BY o.OrderDate DESC, o.OrderID", con);
+            var cmd = new SqlCommand("GetAllOrders", con)
+            {
+                CommandType = CommandType.StoredProcedure
+            };
 
             using var reader = cmd.ExecuteReader();
 
-            var currentOrderId = -1;
+            int currentOrderId = -1;
             AdminOrder currentOrder = null;
 
             while (reader.Read())
             {
-                int orderId = (int)reader["OrderID"];
+                int orderId = reader.GetInt32(reader.GetOrdinal("OrderID"));
                 if (orderId != currentOrderId)
                 {
                     currentOrder = new AdminOrder
                     {
                         OrderId = orderId,
-                        Status = reader["Status"].ToString(),
-                        OrderDate = (DateTime)reader["OrderDate"],
-                        TotalAmount = (decimal)reader["TotalAmount"],
-                        CustomerName = reader["FullName"].ToString(),
-                        CustomerEmail = reader["Email"].ToString(),
+                        Status = reader.GetString(reader.GetOrdinal("Status")),
+                        OrderDate = reader.GetDateTime(reader.GetOrdinal("OrderDate")),
+                        TotalAmount = reader.GetDecimal(reader.GetOrdinal("TotalAmount")),
+                        CustomerName = reader.GetString(reader.GetOrdinal("FullName")),
+                        CustomerEmail = reader.GetString(reader.GetOrdinal("Email")),
                         Items = new List<string>()
                     };
                     orders.Add(currentOrder);
                     currentOrderId = orderId;
                 }
 
-                string dishName = reader["DishName"].ToString();
-                int quantity = (int)reader["Quantity"];
+                string dishName = reader.GetString(reader.GetOrdinal("DishName"));
+                int quantity = reader.GetInt32(reader.GetOrdinal("Quantity"));
 
-                string itemLine = $"{dishName} x{quantity}";
-                currentOrder.Items.Add(itemLine);
+                currentOrder.Items.Add($"{dishName} x{quantity}");
             }
 
             return orders;
         }
-
     }
 }

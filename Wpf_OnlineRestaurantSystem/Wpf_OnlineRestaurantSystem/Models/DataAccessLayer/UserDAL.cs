@@ -1,8 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using Microsoft.Data.SqlClient;
-using System.Security.Cryptography;
-using System.Text;
 using Wpf_OnlineRestaurantSystem.Models;
 
 namespace Wpf_OnlineRestaurantSystem.Models
@@ -16,9 +15,10 @@ namespace Wpf_OnlineRestaurantSystem.Models
                 using (SqlConnection con = HelperDAL.Connection())
                 {
                     con.Open();
-                    using (SqlCommand cmd = new SqlCommand(
-                        "SELECT * FROM Users WHERE Email = @Email AND PasswordHash = @PasswordHash", con))
+
+                    using (SqlCommand cmd = new SqlCommand("GetUserByEmailAndPassword", con))
                     {
+                        cmd.CommandType = CommandType.StoredProcedure;
                         cmd.Parameters.AddWithValue("@Email", email);
                         cmd.Parameters.AddWithValue("@PasswordHash", password);
 
@@ -48,6 +48,7 @@ namespace Wpf_OnlineRestaurantSystem.Models
 
             return null;
         }
+
         public static bool RegisterUser(User newUser)
         {
             try
@@ -55,19 +56,17 @@ namespace Wpf_OnlineRestaurantSystem.Models
                 using (SqlConnection con = HelperDAL.Connection())
                 {
                     con.Open();
-                    using (SqlCommand cmd = new SqlCommand(@"
-                        INSERT INTO Users 
-                        (Username, FullName, Email, PhoneNumber, Address, PasswordHash, Role, CreatedAt)
-                        VALUES 
-                        (@Username, @FullName, @Email, @PhoneNumber, @Address, @PasswordHash, @Role, GETDATE())", con))
+
+                    using (SqlCommand cmd = new SqlCommand("RegisterUser", con))
                     {
+                        cmd.CommandType = CommandType.StoredProcedure;
                         cmd.Parameters.AddWithValue("@Username", newUser.FirstName);
-                        cmd.Parameters.AddWithValue("@FullName", newUser.LastName); 
+                        cmd.Parameters.AddWithValue("@FullName", newUser.LastName);
                         cmd.Parameters.AddWithValue("@Email", newUser.Email);
                         cmd.Parameters.AddWithValue("@PhoneNumber", newUser.PhoneNumber);
                         cmd.Parameters.AddWithValue("@Address", newUser.Address);
                         cmd.Parameters.AddWithValue("@PasswordHash", newUser.Password);
-                        cmd.Parameters.AddWithValue("@Role", "User"); 
+                        cmd.Parameters.AddWithValue("@Role", "User");
 
                         int rows = cmd.ExecuteNonQuery();
                         return rows > 0;
@@ -80,6 +79,7 @@ namespace Wpf_OnlineRestaurantSystem.Models
                 return false;
             }
         }
+
         public static List<User> GetNormalUsers()
         {
             var users = new List<User>();
@@ -88,10 +88,10 @@ namespace Wpf_OnlineRestaurantSystem.Models
             {
                 con.Open();
 
-                using (var cmd = new SqlCommand(@"
-            SELECT * FROM Users 
-            WHERE Email NOT LIKE '%@admin%' AND Email NOT LIKE '%@employee%'", con))
+                using (var cmd = new SqlCommand("GetNormalUsers", con))
                 {
+                    cmd.CommandType = CommandType.StoredProcedure;
+
                     using (var reader = cmd.ExecuteReader())
                     {
                         while (reader.Read())
@@ -113,7 +113,5 @@ namespace Wpf_OnlineRestaurantSystem.Models
 
             return users;
         }
-
-
     }
 }

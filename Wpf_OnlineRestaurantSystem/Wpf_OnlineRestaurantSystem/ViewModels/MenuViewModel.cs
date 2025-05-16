@@ -27,16 +27,22 @@ namespace Wpf_OnlineRestaurantSystem.ViewModels
         public ICommand PlaceOrderCommand { get; }
         public ICommand ClearSearchCommand { get; }
         public decimal TotalPrice => SelectedItems.Sum(order => order.TotalPrice);
+        public bool ShowAdminButton =>
+            IsUserLoggedIn &&
+            (Session.GetCurrentUserEmail().Contains("@admin") || Session.GetCurrentUserEmail().Contains("@employee"));
 
         public bool ShowOrderButtons =>
-         !Session.GetCurrentUserEmail().Contains("@admin") &&
-         !Session.GetCurrentUserEmail().Contains("@employee");
+            IsUserLoggedIn &&
+            !Session.GetCurrentUserEmail().Contains("@admin") &&
+            !Session.GetCurrentUserEmail().Contains("@employee");
 
         private void NotifyUserStatusChanged()
         {
             OnPropertyChanged(nameof(IsUserLoggedIn));
             OnPropertyChanged(nameof(ShowOrderButtons));
+            OnPropertyChanged(nameof(ShowAdminButton));
         }
+
         public bool ShowQuantityVisibility => Session.GetCurrentUserRole() != "Customer";
 
         private Category selectedCategory;

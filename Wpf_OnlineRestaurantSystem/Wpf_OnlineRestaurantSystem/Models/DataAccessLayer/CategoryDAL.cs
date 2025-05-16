@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Microsoft.Data.SqlClient;
+using System.Data;
 
 namespace Wpf_OnlineRestaurantSystem.Models
 {
@@ -14,10 +9,14 @@ namespace Wpf_OnlineRestaurantSystem.Models
         public static List<Category> GetAllCategories()
         {
             List<Category> categories = new List<Category>();
+
             using (SqlConnection con = HelperDAL.Connection())
             {
                 con.Open();
-                SqlCommand cmd = new SqlCommand("SELECT Id, Name FROM Categories", con);
+
+                SqlCommand cmd = new SqlCommand("GetAllCategories", con);
+                cmd.CommandType = CommandType.StoredProcedure;
+
                 SqlDataReader reader = cmd.ExecuteReader();
 
                 while (reader.Read())
@@ -29,6 +28,7 @@ namespace Wpf_OnlineRestaurantSystem.Models
                     });
                 }
             }
+
             return categories;
         }
     }

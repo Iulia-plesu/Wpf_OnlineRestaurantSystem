@@ -160,7 +160,7 @@
                           ItemsSource="{Binding Categories}"
                           SelectedItem="{Binding SelectedCategory, Mode=TwoWay}"
                           DisplayMemberPath="Name"
-                          Margin="10,0,10,496"/>
+                          Margin="20,10,0,486"/>
 
                 <!-- Menu Items -->
                 <ListBox Grid.Column="1"
@@ -213,9 +213,9 @@
                                         Style="{StaticResource WineButtonStyle}"
                                         Width="110" Height="30"
                                         Margin="0,0,10,10"
-                                        Click="Admin_Click"/>
+                                        Click="Admin_Click"
+                                        Visibility="{Binding ShowAdminButton, Converter={StaticResource InverseBoolToVisibilityConverter}}"/>
 
-                                
                             </StackPanel>
 
                             <!-- Item Details -->
