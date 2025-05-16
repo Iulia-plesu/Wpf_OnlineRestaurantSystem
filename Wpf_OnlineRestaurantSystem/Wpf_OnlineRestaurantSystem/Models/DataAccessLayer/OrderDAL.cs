@@ -16,7 +16,6 @@ namespace Wpf_OnlineRestaurantSystem.Models
             using var transaction = con.BeginTransaction();
             try
             {
-                // Creare DataTable pentru parametru tabelar
                 var itemTable = new DataTable();
                 itemTable.Columns.Add("DishID", typeof(int));
                 itemTable.Columns.Add("Quantity", typeof(int));
@@ -30,7 +29,6 @@ namespace Wpf_OnlineRestaurantSystem.Models
                     }
                     else
                     {
-                        // Obține dish-urile din meniu folosind procedura GetMenuItems
                         var getMenuItemsCmd = new SqlCommand("GetMenuItems", con, transaction)
                         {
                             CommandType = CommandType.StoredProcedure
@@ -46,7 +44,6 @@ namespace Wpf_OnlineRestaurantSystem.Models
 
                         foreach (var dishId in dishIds)
                         {
-                            // Obține prețul folosind procedura GetDishPrice
                             var getPriceCmd = new SqlCommand("GetDishPrice", con, transaction)
                             {
                                 CommandType = CommandType.StoredProcedure
@@ -70,7 +67,6 @@ namespace Wpf_OnlineRestaurantSystem.Models
                     }
                 }
 
-                // Apelare procedură SaveOrder cu parametru tabelar
                 var saveOrderCmd = new SqlCommand("SaveOrder", con, transaction)
                 {
                     CommandType = CommandType.StoredProcedure
@@ -85,7 +81,6 @@ namespace Wpf_OnlineRestaurantSystem.Models
 
                 saveOrderCmd.ExecuteNonQuery();
 
-                // Scade cantitățile ingredientelor folosind procedura ScadeCantitatiIngredient
                 foreach (DataRow row in itemTable.Rows)
                 {
                     var scadeCmd = new SqlCommand("ScadeCantitatiIngredient", con, transaction)
