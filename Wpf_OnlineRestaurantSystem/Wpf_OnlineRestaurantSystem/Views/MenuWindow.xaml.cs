@@ -1,4 +1,5 @@
 ﻿using System.Windows;
+using Wpf_OnlineRestaurantSystem.Helpers;
 using Wpf_OnlineRestaurantSystem.ViewModels;
 
 namespace Wpf_OnlineRestaurantSystem.Views
@@ -9,6 +10,14 @@ namespace Wpf_OnlineRestaurantSystem.Views
         {
             InitializeComponent();
             DataContext = new MenuViewModel(this);
+            if (Session.GetCurrentUserEmail() == "admin@admin.com")
+            {
+                AdminPanelBorder.Visibility = Visibility.Visible;
+            }
+            if (Session.GetCurrentUserEmail()  != "admin@admin.com")
+            {
+                OrderStatusBorder.Visibility = Visibility.Visible;
+            }
         }
         private void Logout_Click(object sender, RoutedEventArgs e)
         {

@@ -196,25 +196,33 @@
                                     Visibility="{Binding ShowOrderButtons, Converter={StaticResource BoolToVisibilityConverter}}">
                             <!-- Buttons Top Right -->
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                                
-                                <Button Content="Order Status"
-                                        Style="{StaticResource WineButtonStyle}"
-                                        Width="110" Height="30"
-                                        Margin="0,0,10,10"
-                                        Command="{Binding OpenOrderStatusCommand}"/>
 
-                                <Button Content="Logout"
-                                        Style="{StaticResource WineButtonStyle}"
-                                        Width="80" Height="30"
-                                        Margin="0,0,10,10"
-                                        Click="Logout_Click"/>
+                                <!-- Order Status Button -->
+                                <Border x:Name="OrderStatusBorder" Margin="0,0,10,10" Visibility="Collapsed">
+                                    <Button Content="Order Status"
+            Style="{StaticResource WineButtonStyle}"
+            Width="110" Height="30"
+            Command="{Binding OpenOrderStatusCommand}"/>
+                                </Border>
 
-                                <Button Content="Admin Panel"
-                                        Style="{StaticResource WineButtonStyle}"
-                                        Width="110" Height="30"
-                                        Margin="0,0,10,10"
-                                        Click="Admin_Click"
-                                        Visibility="{Binding ShowAdminButton, Converter={StaticResource InverseBoolToVisibilityConverter}}"/>
+
+                                <!-- Logout Button (doar dacă user e logat) -->
+                                <Border Margin="0,0,10,10"
+            Visibility="{Binding IsUserLoggedIn, Converter={StaticResource BoolToVisibilityConverter}}">
+                                    <Button Content="Logout"
+                Style="{StaticResource WineButtonStyle}"
+                Width="80" Height="30"
+                Click="Logout_Click"/>
+                                </Border>
+
+                                <!-- Admin Panel Button (doar dacă e admin sau employee) -->
+                                <Border x:Name="AdminPanelBorder" Margin="0,0,10,10" Visibility="Collapsed">
+                                    <Button Content="Admin Panel"
+            Style="{StaticResource WineButtonStyle}"
+            Width="110" Height="30"
+            Click="Admin_Click"/>
+                                </Border>
+
 
                             </StackPanel>
 

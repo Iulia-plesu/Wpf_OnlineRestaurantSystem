@@ -27,16 +27,15 @@ namespace Wpf_OnlineRestaurantSystem.ViewModels
         public ICommand PlaceOrderCommand { get; }
         public ICommand ClearSearchCommand { get; }
         public decimal TotalPrice => SelectedItems.Sum(order => order.TotalPrice);
-        public bool ShowAdminButton =>
-            IsUserLoggedIn &&
-            (Session.GetCurrentUserEmail().Contains("@admin") || Session.GetCurrentUserEmail().Contains("@employee"));
+        public bool ShowAdminButton => Helpers.Session.CurrentUser?.Role == "Admin";
+
 
         public bool ShowOrderButtons =>
             IsUserLoggedIn &&
             !Session.GetCurrentUserEmail().Contains("@admin") &&
             !Session.GetCurrentUserEmail().Contains("@employee");
 
-        private void NotifyUserStatusChanged()
+        public void NotifyUserStatusChanged()
         {
             OnPropertyChanged(nameof(IsUserLoggedIn));
             OnPropertyChanged(nameof(ShowOrderButtons));
@@ -82,7 +81,8 @@ namespace Wpf_OnlineRestaurantSystem.ViewModels
         }
         private ObservableCollection<MenuItem> allMenuItems;
 
-        private readonly Window currentWindow;
+        private Window currentWindow;
+        public void SetWindow(Window window) => currentWindow = window;
         public MenuViewModel(Window window)
         {
             currentWindow = window;
