@@ -1,6 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Windows.Input;
 using Wpf_OnlineRestaurantSystem.Models;
 
 namespace Wpf_OnlineRestaurantSystem.ViewModels
@@ -18,11 +19,19 @@ namespace Wpf_OnlineRestaurantSystem.ViewModels
             }
         }
 
+        public ICommand CancelOrderCommand { get; }
         public AdminViewModel()
         {
+            CancelOrderCommand = new RelayCommand(CancelOrder);
             LoadUsersAndOrders();
         }
-
+        private void CancelOrder(object parameter)
+        {
+            if (parameter is CancelOrderInfo info)
+            {
+                OrderDAL.CancelOrder(info.OrderId);
+            }
+        }
         private void LoadUsersAndOrders()
         {
             var result = new ObservableCollection<UserWithOrders>();
@@ -41,7 +50,19 @@ namespace Wpf_OnlineRestaurantSystem.ViewModels
 
             UsersWithOrders = result;
         }
+        private void CancelOrder(CancelOrderInfo info)
+        {
+            if (info == null) return;
 
+            OrderDAL.CancelOrder(info.OrderId);
+
+            var user = UsersWithOrders.FirstOrDefault(u => u.Orders.Any(o => o.OrderId == info.OrderId));
+            if (user != null)
+            {
+                user.Orders = OrderDAL.GetUserOrders(info.UserId);
+                OnPropertyChanged(nameof(UsersWithOrders));
+            }
+        }
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged([CallerMemberName] string propertyName = null) =>
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));

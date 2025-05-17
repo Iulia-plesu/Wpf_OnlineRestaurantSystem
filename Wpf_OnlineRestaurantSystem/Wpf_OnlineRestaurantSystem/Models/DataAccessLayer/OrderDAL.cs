@@ -125,6 +125,7 @@ namespace Wpf_OnlineRestaurantSystem.Models
                     currentOrder = new UserOrder
                     {
                         OrderId = orderId,
+                        UserId = userId,
                         Status = reader.GetString(reader.GetOrdinal("Status")),
                         OrderDate = reader.GetDateTime(reader.GetOrdinal("OrderDate")),
                         TotalAmount = reader.GetDecimal(reader.GetOrdinal("TotalAmount")),
