@@ -14,5 +14,6 @@
         <conv:QuantityDisplayConverter x:Key="QuantityDisplayConverter"/>
         <conv:StockStatusConverter x:Key="StockStatusConverter"/>
         <conv:CancelOrderInfoConverter x:Key="CancelOrderInfoConverter"/>
+        <conv:OrderStatusUpdateConverter x:Key="OrderStatusUpdateConverter" />
     </Application.Resources>
 </Application>

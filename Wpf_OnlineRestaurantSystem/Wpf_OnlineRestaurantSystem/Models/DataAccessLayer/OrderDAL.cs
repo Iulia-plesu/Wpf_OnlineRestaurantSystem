@@ -200,6 +200,20 @@ namespace Wpf_OnlineRestaurantSystem.Models
 
             cmd.ExecuteNonQuery();
         }
+        public static void UpdateOrderStatus(int orderId, string newStatus)
+        {
+            using var con = HelperDAL.Connection();
+            con.Open();
+
+            using var cmd = new SqlCommand("UpdateOrderStatus", con)
+            {
+                CommandType = CommandType.StoredProcedure
+            };
+            cmd.Parameters.AddWithValue("@OrderID", orderId);
+            cmd.Parameters.AddWithValue("@NewStatus", newStatus);
+
+            cmd.ExecuteNonQuery();
+        }
 
     }
 }

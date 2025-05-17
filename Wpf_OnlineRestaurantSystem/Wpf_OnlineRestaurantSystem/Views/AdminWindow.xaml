@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Wpf_OnlineRestaurantSystem.Views"
+        xmlns:sys="clr-namespace:System;assembly=mscorlib"
         mc:Ignorable="d"
         Title="Château Rosé - Admin Panel"
         Height="650"
@@ -210,19 +211,69 @@
                                                     </ItemsControl>
 
                                                     <!-- Action Buttons -->
-                                                    <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
-                                                        <Button Content="Mark as Completed"
+                                                    <StackPanel Orientation="Horizontal" Margin="0,10,5,0" HorizontalAlignment="Left">
+                                                        <!-- In preparation -->
+                                                        <Button Content="In preparation"
                                                                 Style="{StaticResource WineButtonStyle}"
-                                                                Width="150"
-                                                                Height="30"
-                                                                Margin="0,0,10,0"
-                                                                Command="{Binding DataContext.MarkAsCompletedCommand, RelativeSource={RelativeSource AncestorType=Window}}"
-                                                                CommandParameter="{Binding OrderId}" />
-
-                                                        <Button Content="Cancel Order"
                                                                 Width="120"
                                                                 Height="30"
                                                                 Margin="0,0,10,0"
+                                                                Command="{Binding DataContext.UpdateOrderStatusCommand, RelativeSource={RelativeSource AncestorType=Window}}">
+                                                            <Button.CommandParameter>
+                                                                <MultiBinding Converter="{StaticResource OrderStatusUpdateConverter}">
+                                                                    <Binding Path="OrderId" />
+                                                                    <Binding>
+                                                                        <Binding.Source>
+                                                                            <sys:String>In preparation</sys:String>
+                                                                        </Binding.Source>
+                                                                    </Binding>
+                                                                </MultiBinding>
+                                                            </Button.CommandParameter>
+                                                        </Button>
+
+                                                        <!-- Out for Delivery -->
+                                                        <Button Content="Out for Delivery"
+                                                                Style="{StaticResource WineButtonStyle}"
+                                                                Width="130"
+                                                                Height="30"
+                                                                Margin="0,0,10,0"
+                                                                Command="{Binding DataContext.UpdateOrderStatusCommand, RelativeSource={RelativeSource AncestorType=Window}}">
+                                                            <Button.CommandParameter>
+                                                                <MultiBinding Converter="{StaticResource OrderStatusUpdateConverter}">
+                                                                    <Binding Path="OrderId" />
+                                                                    <Binding>
+                                                                        <Binding.Source>
+                                                                            <sys:String>Out for delivery</sys:String>
+                                                                        </Binding.Source>
+                                                                    </Binding>
+                                                                </MultiBinding>
+                                                            </Button.CommandParameter>
+                                                        </Button>
+
+                                                        <!-- Delivered -->
+                                                        <Button Content="Delivered"
+                                                                Style="{StaticResource WineButtonStyle}"
+                                                                Width="100"
+                                                                Height="30"
+                                                                Margin="0,0,10,0"
+                                                                Command="{Binding DataContext.UpdateOrderStatusCommand, RelativeSource={RelativeSource AncestorType=Window}}">
+                                                            <Button.CommandParameter>
+                                                                <MultiBinding Converter="{StaticResource OrderStatusUpdateConverter}">
+                                                                    <Binding Path="OrderId" />
+                                                                    <Binding>
+                                                                        <Binding.Source>
+                                                                            <sys:String>Delivered</sys:String>
+                                                                        </Binding.Source>
+                                                                    </Binding>
+                                                                </MultiBinding>
+                                                            </Button.CommandParameter>
+                                                        </Button>
+
+                                                        <!-- Cancel Order -->
+                                                        <Button Content="Cancel Order"
+                                                                Width="120"
+                                                                Height="30"
+                                                                Margin="0,0,0,0"
                                                                 Command="{Binding DataContext.CancelOrderCommand, RelativeSource={RelativeSource AncestorType=Window}}">
                                                             <Button.CommandParameter>
                                                                 <MultiBinding Converter="{StaticResource CancelOrderInfoConverter}">

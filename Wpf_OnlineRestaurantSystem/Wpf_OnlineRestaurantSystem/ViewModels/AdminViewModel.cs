@@ -18,13 +18,31 @@ namespace Wpf_OnlineRestaurantSystem.ViewModels
                 OnPropertyChanged();
             }
         }
+        public ICommand UpdateOrderStatusCommand { get; }
 
         public ICommand CancelOrderCommand { get; }
         public AdminViewModel()
         {
             CancelOrderCommand = new RelayCommand(CancelOrder);
+            UpdateOrderStatusCommand = new RelayCommand(UpdateOrderStatus);
+
             LoadUsersAndOrders();
         }
+        private void UpdateOrderStatus(object parameter)
+        {
+            if (parameter is OrderStatusUpdateInfo info)
+            {
+                OrderDAL.UpdateOrderStatus(info.OrderId, info.NewStatus);
+
+                var user = UsersWithOrders.FirstOrDefault(u => u.Orders.Any(o => o.OrderId == info.OrderId));
+                if (user != null)
+                {
+                    user.Orders = OrderDAL.GetUserOrders(user.Orders.First().UserId);
+                    OnPropertyChanged(nameof(UsersWithOrders));
+                }
+            }
+        }
+
         private void CancelOrder(object parameter)
         {
             if (parameter is CancelOrderInfo info)
