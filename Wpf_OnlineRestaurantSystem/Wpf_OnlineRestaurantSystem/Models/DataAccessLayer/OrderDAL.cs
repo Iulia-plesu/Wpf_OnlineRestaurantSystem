@@ -72,7 +72,6 @@ namespace Wpf_OnlineRestaurantSystem.Models
                     CommandType = CommandType.StoredProcedure
                 };
                 saveOrderCmd.Parameters.AddWithValue("@UserID", userId);
-                saveOrderCmd.Parameters.AddWithValue("@Status", "Pending");
                 saveOrderCmd.Parameters.AddWithValue("@TotalAmount", items.Sum(i => i.TotalPrice));
 
                 var itemsParam = saveOrderCmd.Parameters.AddWithValue("@OrderItems", itemTable);
@@ -187,5 +186,19 @@ namespace Wpf_OnlineRestaurantSystem.Models
 
             return orders;
         }
+        public static void CancelOrder(int orderId)
+        {
+            using var con = HelperDAL.Connection();
+            con.Open();
+
+            var cmd = new SqlCommand("CancelOrder", con)
+            {
+                CommandType = CommandType.StoredProcedure
+            };
+            cmd.Parameters.AddWithValue("@OrderID", orderId);
+
+            cmd.ExecuteNonQuery();
+        }
+
     }
 }
