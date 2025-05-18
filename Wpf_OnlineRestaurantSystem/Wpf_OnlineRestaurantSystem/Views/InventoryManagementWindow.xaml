@@ -7,51 +7,143 @@
         Title="Manage Inventory"
         Height="600"
         Width="800"
-        WindowStartupLocation="CenterOwner">
+        WindowStartupLocation="CenterScreen"
+        FontFamily="Georgia">
 
-    <Grid Margin="10">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
+    <!-- Add standard window controls -->
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="32"
+                      ResizeBorderThickness="5"
+                      UseAeroCaptionButtons="True"/>
+    </WindowChrome.WindowChrome>
 
-        <!-- Search and Filter -->
-        <StackPanel Orientation="Horizontal" Grid.Row="0">
-            <TextBox Width="200" Margin="0,0,10,0"
-                     Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
-                     />
-        </StackPanel>
+    <Window.Resources>
+        <!-- Reusing WineButtonStyle -->
+        <Style x:Key="WineButtonStyle" TargetType="Button">
+            <Setter Property="Background">
+                <Setter.Value>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                        <GradientStop Color="#FFF5F0FA" Offset="0"/>
+                        <GradientStop Color="#FFE8D8E8" Offset="1"/>
+                    </LinearGradientBrush>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="BorderBrush" Value="#FFD4A5C8"/>
+            <Setter Property="Foreground" Value="#FF5A3A4A"/>
+            <Setter Property="BorderThickness" Value="1.2"/>
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="FontWeight" Value="Medium"/>
+            <Setter Property="FontStyle" Value="Italic"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="10"
+                                SnapsToDevicePixels="True">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"
+                                              Margin="10,5"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background">
+                                    <Setter.Value>
+                                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                            <GradientStop Color="#FFFAF0FF" Offset="0"/>
+                                            <GradientStop Color="#FFE8C8D5" Offset="1"/>
+                                        </LinearGradientBrush>
+                                    </Setter.Value>
+                                </Setter>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
 
-        <!-- Dishes List -->
-        <DataGrid Grid.Row="1" 
-                  ItemsSource="{Binding Dishes}"
-                  AutoGenerateColumns="False"
-                  SelectionMode="Single"
-                  SelectedItem="{Binding SelectedDish}"
-                  Margin="0,10,0,10">
-            <DataGrid.Columns>
-                <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="*"/>
-                <DataGridTextColumn Header="Current Stock" Binding="{Binding CurrentQuantity}" Width="0.5*"/>
-                <DataGridTemplateColumn Header="Add Quantity" Width="0.5*">
-                    <DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate>
-                            <TextBox Text="{Binding QuantityToAdd, UpdateSourceTrigger=PropertyChanged}"
-                                     Margin="2" Padding="2"/>
-                        </DataTemplate>
-                    </DataGridTemplateColumn.CellTemplate>
-                </DataGridTemplateColumn>
-            </DataGrid.Columns>
-        </DataGrid>
+        <!-- Styled TextBox -->
+        <Style TargetType="TextBox">
+            <Setter Property="Padding" Value="8"/>
+            <Setter Property="Background" Value="#FFFEFEFE"/>
+            <Setter Property="BorderBrush" Value="#FFD4A5C8"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Foreground" Value="#FF5A3A4A"/>
+            <Setter Property="Height" Value="30"/>
+            <Setter Property="MinWidth" Value="120"/>
+        </Style>
+    </Window.Resources>
 
-        <!-- Action Buttons -->
-        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right">
-            <Button Content="Update Stock"
-                    Command="{Binding UpdateStockCommand}"
-                    Width="120" Height="30" Margin="0,0,10,0"/>
-            <Button Content="Close"
-                    Command="{Binding CloseCommand}"
-                    Width="80" Height="30"/>
-        </StackPanel>
+    <Grid>
+        <!-- Background with subtle wine color -->
+        <Grid.Background>
+            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                <GradientStop Color="#FFF9F0F5" Offset="0"/>
+                <GradientStop Color="#FFFAF5FF" Offset="1"/>
+            </LinearGradientBrush>
+        </Grid.Background>
+
+        <Grid Margin="20">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- Search and Filter -->
+            <StackPanel Orientation="Horizontal" Grid.Row="0" Margin="0,0,0,10">
+                <TextBox Width="250"
+                         Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"/>
+            </StackPanel>
+
+            <!-- Dishes List -->
+            <Border Grid.Row="1"
+                    BorderBrush="#FFD4A5C8"
+                    BorderThickness="1"
+                    CornerRadius="10"
+                    Background="#FFFEFEFE"
+                    Padding="10"
+                    Margin="0,0,0,10">
+                <DataGrid ItemsSource="{Binding Dishes}"
+                          AutoGenerateColumns="False"
+                          SelectionMode="Single"
+                          SelectedItem="{Binding SelectedDish}"
+                          Background="#FFFDFDFD"
+                          Foreground="#FF5A3A4A"
+                          ColumnHeaderHeight="35"
+                          RowHeight="35"
+                          HeadersVisibility="Column"
+                          CanUserAddRows="False"
+                          GridLinesVisibility="None">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="2*"/>
+                        <DataGridTextColumn Header="Current Stock" Binding="{Binding CurrentQuantity}" Width="*"/>
+                        <DataGridTemplateColumn Header="Add Quantity" Width="*">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBox Text="{Binding QuantityToAdd, UpdateSourceTrigger=PropertyChanged}" 
+                                             Margin="4" />
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Border>
+
+            <!-- Action Buttons -->
+            <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button Content="Update Stock"
+                        Command="{Binding UpdateStockCommand}"
+                        Style="{StaticResource WineButtonStyle}"
+                        Width="150" Height="40" Margin="0,0,10,0"/>
+                <Button Content="Close"
+                        Command="{Binding CloseCommand}"
+                        Style="{StaticResource WineButtonStyle}"
+                        Width="100" Height="40"/>
+            </StackPanel>
+        </Grid>
     </Grid>
 </Window>
