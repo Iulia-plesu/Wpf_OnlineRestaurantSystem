@@ -132,7 +132,6 @@ namespace Wpf_OnlineRestaurantSystem.ViewModels
                 return;
             }
 
-            // Get current allergens for the dish
             var currentAllergens = DishDAL.GetDishAllergens(SelectedDish.Id);
             var dialog = new DishDetailsWindow(SelectedDish, AllAllergens, currentAllergens.Select(a => a.Id).ToList());
 
@@ -187,11 +186,10 @@ namespace Wpf_OnlineRestaurantSystem.ViewModels
         public decimal Price { get; set; }
         public bool Available { get; set; }
         public string QuantityPerPortion { get; set; }
-        public string TotalQuantity { get; set; } // Matches DB type
-        public int? CategoryId { get; set; } // Nullable to match DB
+        public string TotalQuantity { get; set; } 
+        public int? CategoryId { get; set; } 
         public bool IsPartOfMenu { get; set; }
 
-        // UI mapping properties
         public string CurrentQuantity
         {
             get => TotalQuantity;

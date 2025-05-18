@@ -146,8 +146,7 @@
                           GridLinesVisibility="None">
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="2*"/>
-                        <DataGridTextColumn Header="Details" Binding="{Binding CurrentQuantity}" Width="*"/>
-                        <DataGridTextColumn Header="Unit" Binding="{Binding Unit}" Width="*"/>
+                        <DataGridTextColumn Header="In Stock" Binding="{Binding CurrentQuantity}" Width="*"/>
                         <DataGridTextColumn Header="Quantity Per Portion" Binding="{Binding QuantityPerPortion}" Width="*"/>
                         <DataGridTemplateColumn Header="Add Quantity" Width="*">
                             <DataGridTemplateColumn.CellTemplate>

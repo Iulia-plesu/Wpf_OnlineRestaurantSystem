@@ -82,13 +82,12 @@ namespace Wpf_OnlineRestaurantSystem.Models
 
                 using (var reader = cmd.ExecuteReader())
                 {
-                    // First result set: dishes
                     while (reader.Read())
                     {
                         dishes.Add(new Dish
                         {
-                            Id = reader.GetInt32(0),                            // DishID
-                            Name = reader.GetString(1),                         // Name
+                            Id = reader.GetInt32(0),                          
+                            Name = reader.GetString(1),                        
                             QuantityPerPortion = reader.IsDBNull(2) ? null : reader.GetString(2),
                             Description = reader.IsDBNull(3) ? null : reader.GetString(3),
                             Price = reader.GetDecimal(4),
@@ -96,11 +95,10 @@ namespace Wpf_OnlineRestaurantSystem.Models
                             TotalQuantity = reader.IsDBNull(6) ? null : reader.GetString(6),
                             CategoryId = reader.IsDBNull(7) ? (int?)null : reader.GetInt32(7),
                             IsPartOfMenu = reader.GetBoolean(8),
-                            Unit = "" // Default empty string
+                            Unit = "" 
                         });
                     }
 
-                    // Second result set: dish allergens
                     if (reader.NextResult())
                     {
                         while (reader.Read())
@@ -118,7 +116,6 @@ namespace Wpf_OnlineRestaurantSystem.Models
                 }
             }
 
-            // Combine dishes with their allergens
             foreach (var dish in dishes)
             {
                 if (dishAllergens.TryGetValue(dish.Id, out var allergens))
