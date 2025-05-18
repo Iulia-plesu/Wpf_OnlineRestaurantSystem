@@ -167,5 +167,80 @@ namespace Wpf_OnlineRestaurantSystem.Models
             }
             return 0;
         }
+        public static List<MenuItem> GetItemsWithoutAllergen(string allergen, int? categoryId = null)
+        {
+            var items = new List<MenuItem>();
+
+            using (SqlConnection con = HelperDAL.Connection())
+            {
+                con.Open();
+
+                SqlCommand cmd = new SqlCommand("GetItemsWithoutAllergen", con);
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@Allergen", allergen);
+
+                if (categoryId.HasValue)
+                {
+                    cmd.Parameters.AddWithValue("@CategoryId", categoryId.Value);
+                }
+                else
+                {
+                    cmd.Parameters.AddWithValue("@CategoryId", DBNull.Value);
+                }
+
+                using (var reader = cmd.ExecuteReader())
+                {
+                    // Read individual dishes
+                    while (reader.Read())
+                    {
+                        var totalQuantity = reader.IsDBNull(5) ? "0" : reader.GetString(5);
+                        var quantityPerPortion = reader.IsDBNull(6) ? "0" : reader.GetString(6);
+                        var isAvailable = CalculateAvailability(totalQuantity, quantityPerPortion);
+
+                        items.Add(new MenuItem
+                        {
+                            Id = reader.GetInt32(0),
+                            Name = reader.GetString(1),
+                            Price = reader.GetDecimal(2),
+                            Description = reader.IsDBNull(3) ? null : reader.GetString(3),
+                            Allergens = reader.IsDBNull(4) ? null : reader.GetString(4),
+                            TotalQuantity = totalQuantity,
+                            QuantityPerPortion = quantityPerPortion,
+                            IsMenu = false,
+                            IsAvailable = isAvailable
+                        });
+                    }
+
+                    // Read menus (if available)
+                    if (reader.NextResult())
+                    {
+                        while (reader.Read())
+                        {
+                            var menu = new MenuItem
+                            {
+                                Id = reader.GetInt32(0),
+                                Name = reader.GetString(1),
+                                Description = reader.IsDBNull(2) ? null : reader.GetString(2),
+                                Price = 0,
+                                IsMenu = true,
+                                TotalQuantity = "0",
+                                SubItems = new List<MenuItem>(),
+                                IsAvailable = true
+                            };
+                            items.Add(menu);
+                        }
+                    }
+                }
+            }
+
+            foreach (var menu in items.Where(i => i.IsMenu))
+            {
+                menu.SubItems = GetSubItemsForMenu(menu.Id);
+                menu.Price = menu.SubItems.Sum(i => i.Price);
+                menu.IsAvailable = menu.SubItems.Count > 0 && menu.SubItems.All(i => i.IsAvailable);
+            }
+
+            return items;
+        }
     }
 }

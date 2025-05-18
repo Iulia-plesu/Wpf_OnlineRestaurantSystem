@@ -15,5 +15,6 @@
         <conv:StockStatusConverter x:Key="StockStatusConverter"/>
         <conv:CancelOrderInfoConverter x:Key="CancelOrderInfoConverter"/>
         <conv:OrderStatusUpdateConverter x:Key="OrderStatusUpdateConverter" />
+        <conv:TextToBackgroundConverter x:Key="TextToBackgroundConverter" />
     </Application.Resources>
 </Application>

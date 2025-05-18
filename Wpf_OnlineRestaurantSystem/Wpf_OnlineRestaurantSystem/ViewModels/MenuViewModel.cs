@@ -55,6 +55,18 @@ namespace Wpf_OnlineRestaurantSystem.ViewModels
                 LoadMenuItems();
             }
         }
+        private string _allergenSearchText;
+        public string AllergenSearchText
+        {
+            get => _allergenSearchText;
+            set
+            {
+                _allergenSearchText = value;
+                OnPropertyChanged(nameof(AllergenSearchText));
+                FilterMenuItems();
+            }
+        }
+        public ICommand ClearAllergenSearchCommand { get; }
 
         private MenuItem selectedItem;
         public MenuItem SelectedItem
@@ -102,12 +114,53 @@ namespace Wpf_OnlineRestaurantSystem.ViewModels
             {
                 SearchText = string.Empty;
             });
+            ClearAllergenSearchCommand = new RelayCommand(_ =>
+            {
+                AllergenSearchText = string.Empty;
+            });
             OpenOrderStatusCommand = new RelayCommand(_ => OpenOrderStatus(), _ => IsUserLoggedIn);
 
             allMenuItems = new ObservableCollection<MenuItem>();
 
             SelectedCategory = Categories.FirstOrDefault(c => c.Name == "All Dishes") ?? Categories.FirstOrDefault();
 
+        }
+        private void FilterMenuItems()
+        {
+            IEnumerable<MenuItem> filtered = allMenuItems;
+
+            if (!string.IsNullOrWhiteSpace(SearchText))
+            {
+                var searchLower = SearchText.ToLower();
+                filtered = filtered.Where(item =>
+                    item.Name.ToLower().Contains(searchLower) ||
+                    (item.IsMenu && item.SubItems?.Any(sub => sub.Name.ToLower().Contains(searchLower)) == true)
+                );
+            }
+
+            if (!string.IsNullOrWhiteSpace(AllergenSearchText))
+            {
+                var allergenLower = AllergenSearchText.ToLower();
+                filtered = filtered.Where(item =>
+                {
+                    if (item.IsMenu)
+                    {
+                        // For menus, check all subitems
+                        return item.SubItems.All(sub =>
+                            string.IsNullOrEmpty(sub.Allergens) ||
+                            !sub.Allergens.ToLower().Contains(allergenLower));
+                    }
+                    else
+                    {
+                        // For regular items
+                        return string.IsNullOrEmpty(item.Allergens) ||
+                               !item.Allergens.ToLower().Contains(allergenLower);
+                    }
+                });
+            }
+
+            MenuItems = new ObservableCollection<MenuItem>(filtered);
+            OnPropertyChanged(nameof(MenuItems));
         }
         private void OpenOrderStatus()
         {
@@ -148,24 +201,7 @@ namespace Wpf_OnlineRestaurantSystem.ViewModels
 
             FilterMenuItems();
         }
-        private void FilterMenuItems()
-        {
-            if (string.IsNullOrWhiteSpace(SearchText))
-            {
-                MenuItems = new ObservableCollection<MenuItem>(allMenuItems);
-            }
-            else
-            {
-                var searchLower = SearchText.ToLower();
-                var filtered = allMenuItems.Where(item =>
-                    item.Name.ToLower().Contains(searchLower) ||
-                    (item.IsMenu && item.SubItems?.Any(sub => sub.Name.ToLower().Contains(searchLower)) == true)
-                ).ToList();
-
-                MenuItems = new ObservableCollection<MenuItem>(filtered);
-            }
-            OnPropertyChanged(nameof(MenuItems));
-        }
+       
         private void PlaceOrder()
         {
             try

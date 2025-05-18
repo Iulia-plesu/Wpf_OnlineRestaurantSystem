@@ -116,23 +116,64 @@
             </Grid.RowDefinitions>
 
             <!-- Search Box -->
-            <TextBox Grid.Row="0" Grid.ColumnSpan="3"
+            <TextBox Grid.Row="0"
                      Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
-                     Margin="10" Padding="5"
+                     Margin="10,10,499,10" 
+                     Padding="5"
                      VerticalContentAlignment="Center"
-                     FontSize="14">
+                     FontSize="14"
+                     Background="{Binding SearchText, Converter={StaticResource TextToBackgroundConverter}}"
+                     BorderBrush="#FFE8C8D5">
                 <TextBox.Template>
                     <ControlTemplate TargetType="TextBox">
                         <Grid>
                             <TextBlock x:Name="Placeholder"
-                                       Text="Search dishes or menus..."
-                                       IsHitTestVisible="False"
-                                       VerticalAlignment="Center"
-                                       HorizontalAlignment="Left"
-                                       Margin="5,0,0,0"
-                                       Foreground="#FFB58E9E"
-                                       FontStyle="Italic"
-                                       Visibility="{Binding Text, RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource NullToVisibilityConverter}}"/>
+                                   Text="Search dishes or menus..."
+                                   IsHitTestVisible="False"
+                                   VerticalAlignment="Center"
+                                   HorizontalAlignment="Left"
+                                   Margin="5,0,0,0"
+                                   Foreground="#FF808080" 
+                                   FontStyle="Italic"
+                                   Visibility="{Binding Text, RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource NullToVisibilityConverter}}"/>
+                <Border Background="{TemplateBinding Background}"
+                        BorderBrush="{TemplateBinding BorderBrush}"
+                        BorderThickness="1"
+                        CornerRadius="5">
+                    <ScrollViewer x:Name="PART_ContentHost"/>
+                </Border>
+            </Grid>
+                    </ControlTemplate>
+                </TextBox.Template>
+                <TextBox.InputBindings>
+                    <KeyBinding Key="Escape" Command="{Binding ClearSearchCommand}"/>
+                </TextBox.InputBindings>
+            </TextBox>
+            
+            <!-- Allergen Search Box -->
+            <TextBox
+                    Text="{Binding AllergenSearchText, UpdateSourceTrigger=PropertyChanged}"
+                    Margin="490,10,10,10" 
+                    Padding="5"
+                    VerticalContentAlignment="Center"
+                    FontSize="14"
+                    Background="{Binding AllergenSearchText, Converter={StaticResource TextToBackgroundConverter}}"
+                    BorderBrush="#FFE8C8D5">
+                <TextBox.Template>
+                    <ControlTemplate TargetType="TextBox">
+                        <Grid>
+                            <!-- Textul placeholder -->
+                            <TextBlock x:Name="Placeholder"
+                                    Text="Filter by allergen (e.g. gluten)..."
+                                    IsHitTestVisible="False"
+                                    VerticalAlignment="Center"
+                                    HorizontalAlignment="Left"
+                                    Margin="5,0,0,0"
+                                    Foreground="#FF808080"
+                                    FontStyle="Italic"
+                                    Visibility="{Binding Text, RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource NullToVisibilityConverter}}"/>
+
+                            <!-- Conținutul efectiv -->
                             <Border Background="{TemplateBinding Background}"
                                     BorderBrush="{TemplateBinding BorderBrush}"
                                     BorderThickness="1"
@@ -143,12 +184,12 @@
                     </ControlTemplate>
                 </TextBox.Template>
                 <TextBox.InputBindings>
-                    <KeyBinding Key="Escape" Command="{Binding ClearSearchCommand}"/>
+                    <KeyBinding Key="Escape" Command="{Binding ClearAllergenSearchCommand}"/>
                 </TextBox.InputBindings>
             </TextBox>
-
+            
             <!-- Main Content -->
-            <Grid Grid.Row="1">
+            <Grid Margin="0,38,0,0" Grid.RowSpan="2">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="200"/>
                     <ColumnDefinition Width="*"/>
@@ -200,27 +241,27 @@
                                 <!-- Order Status Button -->
                                 <Border x:Name="OrderStatusBorder" Margin="0,0,10,10" Visibility="Collapsed">
                                     <Button Content="Order Status"
-            Style="{StaticResource WineButtonStyle}"
-            Width="110" Height="30"
-            Command="{Binding OpenOrderStatusCommand}"/>
+                                        Style="{StaticResource WineButtonStyle}"
+                                        Width="110" Height="30"
+                                        Command="{Binding OpenOrderStatusCommand}"/>
                                 </Border>
 
 
                                 <!-- Logout Button (doar dacă user e logat) -->
                                 <Border Margin="0,0,10,10"
-            Visibility="{Binding IsUserLoggedIn, Converter={StaticResource BoolToVisibilityConverter}}">
+                                    Visibility="{Binding IsUserLoggedIn, Converter={StaticResource BoolToVisibilityConverter}}">
                                     <Button Content="Logout"
-                Style="{StaticResource WineButtonStyle}"
-                Width="80" Height="30"
-                Click="Logout_Click"/>
+                                        Style="{StaticResource WineButtonStyle}"
+                                        Width="80" Height="30"
+                                        Click="Logout_Click"/>
                                 </Border>
 
                                 <!-- Admin Panel Button (doar dacă e admin sau employee) -->
                                 <Border x:Name="AdminPanelBorder" Margin="0,0,10,10" Visibility="Collapsed">
                                     <Button Content="Admin Panel"
-            Style="{StaticResource WineButtonStyle}"
-            Width="110" Height="30"
-            Click="Admin_Click"/>
+                                        Style="{StaticResource WineButtonStyle}"
+                                        Width="110" Height="30"
+                                        Click="Admin_Click"/>
                                 </Border>
 
 
