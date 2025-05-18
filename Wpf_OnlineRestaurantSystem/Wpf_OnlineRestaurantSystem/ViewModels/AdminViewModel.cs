@@ -1,8 +1,10 @@
 ﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Windows;
 using System.Windows.Input;
 using Wpf_OnlineRestaurantSystem.Models;
+using Wpf_OnlineRestaurantSystem.Views;
 
 namespace Wpf_OnlineRestaurantSystem.ViewModels
 {
@@ -19,6 +21,7 @@ namespace Wpf_OnlineRestaurantSystem.ViewModels
             }
         }
         public ICommand UpdateOrderStatusCommand { get; }
+        public ICommand OpenInventoryManagementCommand { get; }
 
         public ICommand CancelOrderCommand { get; }
         public AdminViewModel()
@@ -26,7 +29,16 @@ namespace Wpf_OnlineRestaurantSystem.ViewModels
             CancelOrderCommand = new RelayCommand(CancelOrder);
             UpdateOrderStatusCommand = new RelayCommand(UpdateOrderStatus);
 
+            OpenInventoryManagementCommand = new RelayCommand(OpenInventoryManagement);
+
             LoadUsersAndOrders();
+        }
+        private void OpenInventoryManagement(object parameter)
+        {
+            var window = new InventoryManagementWindow();
+            window.DataContext = new InventoryManagementViewModel();
+            window.Owner = Application.Current.MainWindow;
+            window.ShowDialog();
         }
         private void UpdateOrderStatus(object parameter)
         {

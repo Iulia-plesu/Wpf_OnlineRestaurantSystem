@@ -172,6 +172,12 @@
                         Height="30"
                         Margin="20,0,0,0"
                         Command="{Binding RefreshCommand}" />
+                <Button Content="Manage Inventory"
+        Style="{StaticResource WineButtonStyle}"
+        Width="150"
+        Height="30"
+        Margin="20,0,0,0"
+        Command="{Binding OpenInventoryManagementCommand}"/>
             </StackPanel>
 
             <!-- Orders List -->
