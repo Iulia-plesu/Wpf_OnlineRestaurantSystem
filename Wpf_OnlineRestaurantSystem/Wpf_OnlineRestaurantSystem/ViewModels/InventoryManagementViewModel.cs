@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Input;
+using System.Collections.Generic;
 using Wpf_OnlineRestaurantSystem.Models;
 using Wpf_OnlineRestaurantSystem.Helpers;
 using Wpf_OnlineRestaurantSystem.Views;
@@ -44,19 +45,27 @@ namespace Wpf_OnlineRestaurantSystem.ViewModels
 
         public ObservableCollection<Dish> Dishes { get; set; }
         public ObservableCollection<Dish> AllDishes { get; set; }
+        public List<Allergen> AllAllergens { get; set; }
 
         public ICommand UpdateStockCommand { get; }
         public ICommand CloseCommand { get; }
+        public ICommand AddNewDishCommand { get; }
+        public ICommand EditDishCommand { get; }
+        public ICommand DeleteDishCommand { get; }
 
         public InventoryManagementViewModel()
         {
             Dishes = new ObservableCollection<Dish>();
             AllDishes = new ObservableCollection<Dish>();
+            AllAllergens = DishDAL.GetAllAllergens();
 
             LoadDishes();
 
             UpdateStockCommand = new RelayCommand(UpdateStock);
             CloseCommand = new RelayCommand(CloseWindow);
+            AddNewDishCommand = new RelayCommand(AddNewDish);
+            EditDishCommand = new RelayCommand(EditDish);
+            DeleteDishCommand = new RelayCommand(DeleteDish);
         }
 
         private void LoadDishes()
@@ -102,6 +111,60 @@ namespace Wpf_OnlineRestaurantSystem.ViewModels
             MessageBox.Show("Stock updated successfully!");
         }
 
+        private void AddNewDish(object parameter)
+        {
+            var dialog = new DishDetailsWindow(AllAllergens);
+            if (dialog.ShowDialog() == true)
+            {
+                var newDish = dialog.Dish;
+                var selectedAllergenIds = dialog.SelectedAllergenIds;
+                DishDAL.CreateDish(newDish, selectedAllergenIds);
+                LoadDishes();
+                MessageBox.Show("Dish created successfully!");
+            }
+        }
+
+        private void EditDish(object parameter)
+        {
+            if (SelectedDish == null)
+            {
+                MessageBox.Show("Please select a dish to edit.");
+                return;
+            }
+
+            // Get current allergens for the dish
+            var currentAllergens = DishDAL.GetDishAllergens(SelectedDish.Id);
+            var dialog = new DishDetailsWindow(SelectedDish, AllAllergens, currentAllergens.Select(a => a.Id).ToList());
+
+            if (dialog.ShowDialog() == true)
+            {
+                var updatedDish = dialog.Dish;
+                var selectedAllergenIds = dialog.SelectedAllergenIds;
+                DishDAL.UpdateDish(updatedDish, selectedAllergenIds);
+                LoadDishes();
+                MessageBox.Show("Dish updated successfully!");
+            }
+        }
+
+        private void DeleteDish(object parameter)
+        {
+            if (SelectedDish == null)
+            {
+                MessageBox.Show("Please select a dish to delete.");
+                return;
+            }
+
+            var result = MessageBox.Show($"Are you sure you want to delete '{SelectedDish.Name}'?",
+                "Confirm Delete", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+
+            if (result == MessageBoxResult.Yes)
+            {
+                DishDAL.DeleteDish(SelectedDish.Id);
+                LoadDishes();
+                MessageBox.Show("Dish deleted successfully!");
+            }
+        }
+
         private void CloseWindow(object parameter)
         {
             Application.Current.Windows.OfType<InventoryManagementWindow>().FirstOrDefault()?.Close();
@@ -115,11 +178,41 @@ namespace Wpf_OnlineRestaurantSystem.ViewModels
         }
     }
 
+
     public class Dish : INotifyPropertyChanged
     {
         public int Id { get; set; }
         public string Name { get; set; }
-        public string CurrentQuantity { get; set; }
+        public string Description { get; set; }
+        public decimal Price { get; set; }
+        public bool Available { get; set; }
+        public string QuantityPerPortion { get; set; }
+        public string TotalQuantity { get; set; } // Matches DB type
+        public int? CategoryId { get; set; } // Nullable to match DB
+        public bool IsPartOfMenu { get; set; }
+
+        // UI mapping properties
+        public string CurrentQuantity
+        {
+            get => TotalQuantity;
+            set => TotalQuantity = value;
+        }
+
+        public string Unit { get; set; } = "";
+
+        private string _allergens;
+        public string Allergens
+        {
+            get => _allergens;
+            set
+            {
+                if (_allergens != value)
+                {
+                    _allergens = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
 
         private int _quantityToAdd;
         public int QuantityToAdd

@@ -14,14 +14,12 @@ using System.Windows.Shapes;
 
 namespace Wpf_OnlineRestaurantSystem.Views
 {
-    /// <summary>
-    /// Interaction logic for InventoryManagementWindow.xaml
-    /// </summary>
     public partial class InventoryManagementWindow : Window
     {
         public InventoryManagementWindow()
         {
             InitializeComponent();
+
         }
     }
 }
