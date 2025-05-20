@@ -14,6 +14,7 @@ namespace Wpf_OnlineRestaurantSystem.ViewModels
     {
         public bool IsUserLoggedIn => Session.GetCurrentUserId() != -1;
 
+
         public ObservableCollection<Category> Categories { get; set; }
         public ObservableCollection<MenuItem> MenuItems { get; set; }
         public ObservableCollection<MenuItem> SubItems { get; set; }
@@ -26,7 +27,51 @@ namespace Wpf_OnlineRestaurantSystem.ViewModels
         public ICommand ClearOrderCommand { get; }
         public ICommand PlaceOrderCommand { get; }
         public ICommand ClearSearchCommand { get; }
-        public decimal TotalPrice => SelectedItems.Sum(order => order.TotalPrice);
+
+        private decimal _shippingCost = -1;
+
+        public decimal ShippingCost
+        {
+            get
+            {
+                if (_shippingCost < 0)
+                {
+                    _shippingCost = (decimal)Properties.Settings.Default.ShippingCost;
+                }
+                return _shippingCost;
+            }
+            set
+            {
+                if (_shippingCost != value)
+                {
+                    _shippingCost = value;
+                    OnPropertyChanged(nameof(ShippingCost));
+                }
+            }
+        }
+
+
+        public decimal FreeShippingThreshold => (decimal)Properties.Settings.Default.FreeShippingThreshold;
+        public decimal DiscountPercentage => (decimal)Properties.Settings.Default.DiscountPercentage;
+
+        public decimal TotalPrice
+        {
+            get
+            {
+                decimal subtotal = SelectedItems.Sum(order => order.TotalPrice);
+                decimal shipping = ShippingCost;
+
+                if (subtotal >= FreeShippingThreshold)
+                {
+                    shipping = ShippingCost * (1 - (DiscountPercentage / 100m));
+                    ShippingCost = shipping;
+                    OnPropertyChanged(nameof(ShippingCost));
+                }
+
+                return subtotal + shipping;
+            }
+        }
+
         public bool ShowAdminButton => Helpers.Session.CurrentUser?.Role == "Admin";
 
 
@@ -145,14 +190,12 @@ namespace Wpf_OnlineRestaurantSystem.ViewModels
                 {
                     if (item.IsMenu)
                     {
-                        // For menus, check all subitems
                         return item.SubItems.All(sub =>
                             string.IsNullOrEmpty(sub.Allergens) ||
                             !sub.Allergens.ToLower().Contains(allergenLower));
                     }
                     else
                     {
-                        // For regular items
                         return string.IsNullOrEmpty(item.Allergens) ||
                                !item.Allergens.ToLower().Contains(allergenLower);
                     }
@@ -201,19 +244,29 @@ namespace Wpf_OnlineRestaurantSystem.ViewModels
 
             FilterMenuItems();
         }
-       
+
         private void PlaceOrder()
         {
             try
             {
-                int currentUserId = Session.GetCurrentUserId(); 
+                int currentUserId = Session.GetCurrentUserId();
                 if (currentUserId == -1)
                 {
                     MessageBox.Show("Utilizatorul nu este autentificat.");
                     return;
                 }
 
-                OrderDAL.SaveOrder(currentUserId, SelectedItems.ToList());
+                decimal subtotal = SelectedItems.Sum(item => item.TotalPrice);
+                decimal shippingCost = ShippingCost;
+
+                if (subtotal >= FreeShippingThreshold)
+                {
+                    shippingCost = ShippingCost * (1 - (DiscountPercentage / 100m));
+                    ShippingCost = shippingCost;
+                    OnPropertyChanged(nameof(ShippingCost));
+                }
+
+                OrderDAL.SaveOrder(currentUserId, SelectedItems.ToList(), shippingCost);
 
                 MessageBox.Show("Comanda a fost plasată cu succes!");
                 var statusWindow = new OrderStatusWindow();
@@ -225,7 +278,6 @@ namespace Wpf_OnlineRestaurantSystem.ViewModels
                 MessageBox.Show("Eroare la plasarea comenzii: " + ex.Message);
             }
         }
-
         private void AddSelectedItem()
         {
             if (!IsUserLoggedIn)

@@ -8,7 +8,7 @@ namespace Wpf_OnlineRestaurantSystem.Models
 {
     public static class OrderDAL
     {
-        public static void SaveOrder(int userId, List<OrderItem> items)
+        public static void SaveOrder(int userId, List<OrderItem> items, decimal shippingCost)
         {
             using var con = HelperDAL.Connection();
             con.Open();
