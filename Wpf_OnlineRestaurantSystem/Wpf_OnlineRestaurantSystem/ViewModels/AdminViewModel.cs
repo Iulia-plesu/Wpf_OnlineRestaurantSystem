@@ -20,6 +20,54 @@ namespace Wpf_OnlineRestaurantSystem.ViewModels
                 OnPropertyChanged();
             }
         }
+        private int _registeredCount;
+        public int RegisteredCount
+        {
+            get => _registeredCount;
+            set { _registeredCount = value; OnPropertyChanged(); }
+        }
+
+        private int _inPreparationCount;
+        public int InPreparationCount
+        {
+            get => _inPreparationCount;
+            set { _inPreparationCount = value; OnPropertyChanged(); }
+        }
+
+        private int _outForDeliveryCount;
+        public int OutForDeliveryCount
+        {
+            get => _outForDeliveryCount;
+            set { _outForDeliveryCount = value; OnPropertyChanged(); }
+        }
+
+        private int _deliveredCount;
+        public int DeliveredCount
+        {
+            get => _deliveredCount;
+            set { _deliveredCount = value; OnPropertyChanged(); }
+        }
+
+        private int _canceledCount;
+        public int CanceledCount
+        {
+            get => _canceledCount;
+            set { _canceledCount = value; OnPropertyChanged(); }
+        }
+        private void UpdateOrderStatusCounts()
+        {
+            if (UsersWithOrders == null) return;
+
+            // Flatten all orders from all users
+            var allOrders = UsersWithOrders.SelectMany(u => u.Orders).ToList();
+
+            RegisteredCount = allOrders.Count(o => o.Status == "Registered");
+            InPreparationCount = allOrders.Count(o => o.Status == "In Preparation");
+            OutForDeliveryCount = allOrders.Count(o => o.Status == "Out for Delivery");
+            DeliveredCount = allOrders.Count(o => o.Status == "Delivered");
+            CanceledCount = allOrders.Count(o => o.Status == "Canceled");
+        }
+
         public ICommand UpdateOrderStatusCommand { get; }
         public ICommand OpenInventoryManagementCommand { get; }
 
@@ -40,6 +88,7 @@ namespace Wpf_OnlineRestaurantSystem.ViewModels
             window.Owner = Application.Current.MainWindow;
             window.ShowDialog();
         }
+
         private void UpdateOrderStatus(object parameter)
         {
             if (parameter is OrderStatusUpdateInfo info)
@@ -79,6 +128,8 @@ namespace Wpf_OnlineRestaurantSystem.ViewModels
             }
 
             UsersWithOrders = result;
+            UpdateOrderStatusCounts();
+
         }
         private void CancelOrder(CancelOrderInfo info)
         {
