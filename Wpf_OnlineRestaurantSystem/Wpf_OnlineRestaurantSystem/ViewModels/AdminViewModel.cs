@@ -1,6 +1,8 @@
 ﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Security.Cryptography;
+using System.Text;
 using System.Windows;
 using System.Windows.Input;
 using Wpf_OnlineRestaurantSystem.Models;
@@ -58,7 +60,6 @@ namespace Wpf_OnlineRestaurantSystem.ViewModels
         {
             if (UsersWithOrders == null) return;
 
-            // Flatten all orders from all users
             var allOrders = UsersWithOrders.SelectMany(u => u.Orders).ToList();
 
             RegisteredCount = allOrders.Count(o => o.Status == "Registered");
@@ -142,6 +143,39 @@ namespace Wpf_OnlineRestaurantSystem.ViewModels
             {
                 user.Orders = OrderDAL.GetUserOrders(info.UserId);
                 OnPropertyChanged(nameof(UsersWithOrders));
+            }
+        }
+        public static class OrderIdEncoder
+        {
+            private static readonly string Prefix = "CR-";
+            private static readonly string Salt = "ChâteauRosé";
+
+            public static string EncodeOrderId(int orderId)
+            {
+                string base36 = ConvertToBase36(orderId);
+
+                using (var sha256 = SHA256.Create())
+                {
+                    string input = $"{Salt}{orderId}";
+                    byte[] hashBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(input));
+                    string hashPart = BitConverter.ToString(hashBytes).Replace("-", "").Substring(0, 6);
+
+                    return $"{Prefix}{base36}-{hashPart}";
+                }
+            }
+
+            private static string ConvertToBase36(int value)
+            {
+                const string chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+                var result = new StringBuilder();
+
+                do
+                {
+                    result.Insert(0, chars[value % 36]);
+                    value /= 36;
+                } while (value > 0);
+
+                return result.ToString();
             }
         }
         public event PropertyChangedEventHandler PropertyChanged;

@@ -318,7 +318,7 @@
                                         <DataTemplate>
                                             <Border Style="{StaticResource OrderItemStyle}">
                                                 <StackPanel>
-                                                    <TextBlock Text="{Binding OrderId, StringFormat=Order ID: {0}}"
+                                                    <TextBlock Text="{Binding OrderId, Converter={StaticResource OrderIdDisplayConverter}, StringFormat=Order ID: {0}}"
                                                                Style="{StaticResource OrderIdStyle}" />
                                                     <TextBlock Text="{Binding OrderDate, StringFormat=Date: {0:G}}"
                                                                Style="{StaticResource OrderDetailStyle}" />

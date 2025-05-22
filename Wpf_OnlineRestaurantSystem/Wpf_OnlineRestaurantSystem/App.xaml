@@ -18,5 +18,6 @@
         <conv:TextToBackgroundConverter x:Key="TextToBackgroundConverter" />
         <conv:DoubleGreaterThanZeroToVisibilityConverter x:Key="DoubleGreaterThanZeroToVisibilityConverter" />
         <conv:RelativePathToImageConverter x:Key="RelativePathToImageConverter" />
+        <conv:OrderIdDisplayConverter x:Key="OrderIdDisplayConverter" />
     </Application.Resources>
 </Application>

@@ -175,9 +175,9 @@
                             <DataTemplate>
                                 <Border Style="{StaticResource OrderItemStyle}">
                                     <StackPanel>
-                                        <TextBlock Text="{Binding OrderId, StringFormat='Order ID: {0}'}" 
-                                                   FontWeight="Bold"
-                                                   FontSize="16"/>
+                                        <TextBlock Text="{Binding OrderId, Converter={StaticResource OrderIdDisplayConverter}, StringFormat='Order ID: {0}'}" 
+                                               FontWeight="Bold"
+                                               FontSize="16"/>
 
                                         <!-- Status with conditional color -->
                                         <TextBlock Text="{Binding Status, StringFormat='Status: {0}'}">
