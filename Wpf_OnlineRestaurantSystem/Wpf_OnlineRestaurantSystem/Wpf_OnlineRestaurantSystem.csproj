@@ -9,8 +9,27 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Images\peony_bouquet.jpg" />
-    <None Remove="Images\wine_glasses.jpg" />
+    <None Remove="Images\apaPlata.jpeg" />
+    <None Remove="Images\bruschete.jpeg" />
+    <None Remove="Images\cafeaMica.jpeg" />
+    <None Remove="Images\cappucino.jpeg" />
+    <None Remove="Images\chiftele.jpeg" />
+    <None Remove="Images\ciorbaDeBurta.jpeg" />
+    <None Remove="Images\fanta.jpeg" />
+    <None Remove="Images\inghetata3Cupe.jpeg" />
+    <None Remove="Images\legumeLaGratar.jpeg" />
+    <None Remove="Images\limonada.jpeg" />
+    <None Remove="Images\musaca.jpeg" />
+    <None Remove="Images\orezCuLegume.jpeg" />
+    <None Remove="Images\ouaUmplute.jpeg" />
+    <None Remove="Images\piureCartofi.jpeg" />
+    <None Remove="Images\platouTraditional.jpeg" />
+    <None Remove="Images\puiCuOrez.jpeg" />
+    <None Remove="Images\salataVinete.jpeg" />
+    <None Remove="Images\somonLaGratar.jpeg" />
+    <None Remove="Images\supaCremaDovleac.jpeg" />
+    <None Remove="Images\supaPui.jpeg" />
+    <None Remove="Images\tiramisu.jpeg" />
   </ItemGroup>
 
   <ItemGroup>
@@ -18,8 +37,74 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Resource Include="Images\peony_bouquet.jpg">
+    <Content Include="Images\apaPlata.jpeg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\bruschete.jpeg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\cafeaMica.jpeg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\cappucino.jpeg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\chiftele.jpeg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\ciorbaDeBurta.jpeg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\fanta.jpeg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\inghetata3Cupe.jpeg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\legumeLaGratar.jpeg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\limonada.jpeg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\orezCuLegume.jpeg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\ouaUmplute.jpeg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\papanasi.jpeg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\piureCartofi.jpeg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\platouTraditional.jpeg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\puiCuOrez.jpeg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\salataVinete.jpeg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\somonLaGratar.jpeg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\supaCremaDovleac.jpeg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\supaPui.jpeg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\supaRosii.jpeg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\tiramisu.jpeg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Resource Include="Images\peony_bouquet.jpg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
     <Resource Include="Images\wine_glasses.jpg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

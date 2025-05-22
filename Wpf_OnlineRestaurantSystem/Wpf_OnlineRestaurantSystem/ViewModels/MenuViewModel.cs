@@ -239,8 +239,23 @@ namespace Wpf_OnlineRestaurantSystem.ViewModels
 
             foreach (var item in items)
             {
+                if (item.Id == 105)
+                    item.ImagePath = @"C:\Users\Plesu\Desktop\Wpf_OnlineRestaurantSystem\Wpf_OnlineRestaurantSystem\Wpf_OnlineRestaurantSystem\Images\papanasi.jpeg";
+                if (item.Id == 28)
+                    item.ImagePath = @"C:\Users\Plesu\Desktop\Wpf_OnlineRestaurantSystem\Wpf_OnlineRestaurantSystem\Wpf_OnlineRestaurantSystem\Images\chiftele.jpeg";
+                if (item.Id == 29)
+                    item.ImagePath = @"C:\Users\Plesu\Desktop\Wpf_OnlineRestaurantSystem\Wpf_OnlineRestaurantSystem\Wpf_OnlineRestaurantSystem\Images\bruschete.jpeg";
+                if (item.Id == 30)
+                    item.ImagePath = @"C:\Users\Plesu\Desktop\Wpf_OnlineRestaurantSystem\Wpf_OnlineRestaurantSystem\Wpf_OnlineRestaurantSystem\Images\platouTraditional.jpeg";
+                if (item.Id == 19)
+                    item.ImagePath = @"C:\Users\Plesu\Desktop\Wpf_OnlineRestaurantSystem\Wpf_OnlineRestaurantSystem\Wpf_OnlineRestaurantSystem\Images\ciorbaDeBurta.jpeg";
+                if (item.Id == 47)
+                    item.ImagePath = @"C:\Users\Plesu\Desktop\Wpf_OnlineRestaurantSystem\Wpf_OnlineRestaurantSystem\Wpf_OnlineRestaurantSystem\Images\tiramisu.jpeg";
+                
+
                 allMenuItems.Add(item);
             }
+            
 
             FilterMenuItems();
         }

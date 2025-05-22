@@ -65,11 +65,13 @@ namespace Wpf_OnlineRestaurantSystem.Models
                         Price = reader.GetDecimal(2),
                         Description = reader.IsDBNull(3) ? null : reader.GetString(3),
                         Allergens = reader.IsDBNull(4) ? null : reader.GetString(4),
-                        TotalQuantity = totalQuantity,
                         QuantityPerPortion = quantityPerPortion,
+                        TotalQuantity = totalQuantity,
                         IsMenu = false,
-                        IsAvailable = isAvailable
+                        IsAvailable = isAvailable,
+                        ImagePath = reader.IsDBNull(7) ? null : reader.GetString(7)
                     });
+
                 }
             }
 

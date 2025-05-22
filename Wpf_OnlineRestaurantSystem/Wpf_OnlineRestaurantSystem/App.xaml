@@ -16,7 +16,7 @@
         <conv:CancelOrderInfoConverter x:Key="CancelOrderInfoConverter"/>
         <conv:OrderStatusUpdateConverter x:Key="OrderStatusUpdateConverter" />
         <conv:TextToBackgroundConverter x:Key="TextToBackgroundConverter" />
-        <conv:CollectionToVisibilityConverter x:Key="CollectionToVisibilityConverter" />
         <conv:DoubleGreaterThanZeroToVisibilityConverter x:Key="DoubleGreaterThanZeroToVisibilityConverter" />
+        <conv:RelativePathToImageConverter x:Key="RelativePathToImageConverter" />
     </Application.Resources>
 </Application>

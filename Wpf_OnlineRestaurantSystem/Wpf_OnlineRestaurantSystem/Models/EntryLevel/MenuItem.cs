@@ -1,4 +1,6 @@
-﻿namespace Wpf_OnlineRestaurantSystem.Models
+﻿using Wpf_OnlineRestaurantSystem.ViewModels;
+
+namespace Wpf_OnlineRestaurantSystem.Models
 {
     public class MenuItem
     {
@@ -15,5 +17,20 @@
         public bool IsAvailable { get; set; }
         public string QuantityPerPortion { get; set; }
 
+        public Dish Dish { get; set; }
+
+        public MenuItem()
+        {
+            Dish = new Dish(); 
+        }
+        public string ImagePath
+        {
+            get => Dish?.ImagePath;
+            set
+            {
+                if (Dish == null) Dish = new Dish();
+                Dish.ImagePath = value;
+            }
+        }
     }
 }

@@ -86,8 +86,8 @@ namespace Wpf_OnlineRestaurantSystem.Models
                     {
                         dishes.Add(new Dish
                         {
-                            Id = reader.GetInt32(0),                          
-                            Name = reader.GetString(1),                        
+                            Id = reader.GetInt32(0),
+                            Name = reader.GetString(1),
                             QuantityPerPortion = reader.IsDBNull(2) ? null : reader.GetString(2),
                             Description = reader.IsDBNull(3) ? null : reader.GetString(3),
                             Price = reader.GetDecimal(4),
@@ -95,7 +95,8 @@ namespace Wpf_OnlineRestaurantSystem.Models
                             TotalQuantity = reader.IsDBNull(6) ? null : reader.GetString(6),
                             CategoryId = reader.IsDBNull(7) ? (int?)null : reader.GetInt32(7),
                             IsPartOfMenu = reader.GetBoolean(8),
-                            Unit = "" 
+                            ImagePath = reader.IsDBNull(9) ? null : reader.GetString(9),
+                            Unit = ""
                         });
                     }
 

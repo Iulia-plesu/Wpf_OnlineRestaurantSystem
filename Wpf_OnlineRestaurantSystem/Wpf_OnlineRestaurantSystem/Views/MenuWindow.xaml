@@ -235,6 +235,7 @@
                     <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto" Margin="0,0,0,158">
                         <StackPanel DataContext="{Binding SelectedItem}"
                                     Visibility="{Binding ShowOrderButtons, Converter={StaticResource BoolToVisibilityConverter}}">
+                            
                             <!-- Buttons Top Right -->
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
 
@@ -273,6 +274,8 @@
                             <TextBlock Text="{Binding Description}" TextWrapping="Wrap" Margin="0,5,0,5" Foreground="#FF5A3A4A"/>
                             <TextBlock Text="{Binding Price, StringFormat={}{0:C}}" Margin="0,0,0,5" Foreground="#FF5A3A4A"/>
                             <TextBlock Text="{Binding Allergens}" TextWrapping="Wrap" Foreground="#FF5A3A4A"/>
+                            
+
                             <TextBlock Text="{Binding TotalQuantity, Converter={StaticResource QuantityDisplayConverter}}"
                                        Margin="0,5,0,5"
                                        Foreground="#FF5A3A4A"
@@ -289,6 +292,11 @@
                                                 <TextBlock Text="{Binding Description}" FontStyle="Italic" Foreground="#FF5A3A4A"/>
                                                 <TextBlock Text="{Binding Price, StringFormat={}{0:C}}" Foreground="#FF5A3A4A"/>
                                                 <TextBlock Text="{Binding Allergens}" FontStyle="Italic" Foreground="#FF7A4A5A"/>
+                                                <Image Width="100"
+Height="100"
+Margin="0,10,0,10"
+Source="{Binding ImagePath, Converter={StaticResource RelativePathToImageConverter}}"
+Stretch="UniformToFill" />
                                                 <TextBlock Text="{Binding TotalQuantity, Converter={StaticResource QuantityDisplayConverter}}"
                                                            Margin="0,5,0,0"
                                                            Foreground="#FF5A3A4A"
@@ -301,6 +309,11 @@
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
                             </ItemsControl>
+                            <Image Width="200"
+Height="200"
+Margin="0,10,0,10"
+Source="{Binding ImagePath, Converter={StaticResource RelativePathToImageConverter}}"
+Stretch="UniformToFill" />
                         </StackPanel>
                     </ScrollViewer>
 

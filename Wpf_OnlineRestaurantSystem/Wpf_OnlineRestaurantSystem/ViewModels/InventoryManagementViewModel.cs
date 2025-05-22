@@ -189,6 +189,8 @@ namespace Wpf_OnlineRestaurantSystem.ViewModels
         public string TotalQuantity { get; set; } 
         public int? CategoryId { get; set; } 
         public bool IsPartOfMenu { get; set; }
+        public string ImagePath { get; set; }  
+
 
         public string CurrentQuantity
         {
