@@ -24,11 +24,7 @@ namespace Wpf_OnlineRestaurantSystem.Converters
             {
                 try
                 {
-                    // Debug output
-                    Debug.WriteLine($"Base directory: {BaseImageDirectory}");
-                    Debug.WriteLine($"Directory exists: {Directory.Exists(BaseImageDirectory)}");
 
-                    // Try absolute path first
                     if (Path.IsPathRooted(imagePath))
                     {
                         Debug.WriteLine($"Trying absolute path: {imagePath}");
@@ -38,7 +34,6 @@ namespace Wpf_OnlineRestaurantSystem.Converters
                         }
                     }
 
-                    // Try with base directory
                     string fullPath = Path.Combine(BaseImageDirectory, imagePath);
                     Debug.WriteLine($"Trying path: {fullPath}");
 
@@ -47,7 +42,6 @@ namespace Wpf_OnlineRestaurantSystem.Converters
                         return LoadImage(fullPath);
                     }
 
-                    // Try with just filename
                     string fileName = Path.GetFileName(imagePath);
                     fullPath = Path.Combine(BaseImageDirectory, fileName);
                     Debug.WriteLine($"Trying filename only: {fullPath}");

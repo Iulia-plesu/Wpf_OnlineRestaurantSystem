@@ -14,7 +14,6 @@ namespace Wpf_OnlineRestaurantSystem.Views
 
         private void ExitButton_Click(object sender, RoutedEventArgs e)
         {
-            // Open MenuWindow and close this one
             var menuWindow = new MenuWindow();
             menuWindow.Show();
             this.Close();
@@ -22,9 +21,7 @@ namespace Wpf_OnlineRestaurantSystem.Views
 
         private void RefreshButton_Click(object sender, RoutedEventArgs e)
         {
-            // Create new OrderStatusWindow before closing current one
             var newWindow = new OrderStatusWindow();
-
 
             newWindow.Show();
             this.Close();

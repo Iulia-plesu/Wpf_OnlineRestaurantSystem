@@ -170,13 +170,11 @@ namespace Wpf_OnlineRestaurantSystem.ViewModels
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
-
         protected void OnPropertyChanged([CallerMemberName] string name = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
     }
-
 
     public class Dish : INotifyPropertyChanged
     {
@@ -186,11 +184,10 @@ namespace Wpf_OnlineRestaurantSystem.ViewModels
         public decimal Price { get; set; }
         public bool Available { get; set; }
         public string QuantityPerPortion { get; set; }
-        public string TotalQuantity { get; set; } 
-        public int? CategoryId { get; set; } 
+        public string TotalQuantity { get; set; }
+        public int? CategoryId { get; set; }
         public bool IsPartOfMenu { get; set; }
-        public string ImagePath { get; set; }  
-
+        public string ImagePath { get; set; }
 
         public string CurrentQuantity
         {
@@ -229,7 +226,6 @@ namespace Wpf_OnlineRestaurantSystem.ViewModels
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
-
         protected void OnPropertyChanged([CallerMemberName] string name = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));

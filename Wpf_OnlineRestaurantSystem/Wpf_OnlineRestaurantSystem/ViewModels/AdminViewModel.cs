@@ -22,6 +22,7 @@ namespace Wpf_OnlineRestaurantSystem.ViewModels
                 OnPropertyChanged();
             }
         }
+
         private int _registeredCount;
         public int RegisteredCount
         {
@@ -56,6 +57,40 @@ namespace Wpf_OnlineRestaurantSystem.ViewModels
             get => _canceledCount;
             set { _canceledCount = value; OnPropertyChanged(); }
         }
+
+        public ICommand UpdateOrderStatusCommand { get; }
+        public ICommand OpenInventoryManagementCommand { get; }
+        public ICommand CancelOrderCommand { get; }
+
+        public AdminViewModel()
+        {
+            CancelOrderCommand = new RelayCommand(CancelOrder);
+            UpdateOrderStatusCommand = new RelayCommand(UpdateOrderStatus);
+            OpenInventoryManagementCommand = new RelayCommand(OpenInventoryManagement);
+
+            LoadUsersAndOrders();
+        }
+
+        private void LoadUsersAndOrders()
+        {
+            var result = new ObservableCollection<UserWithOrders>();
+
+            var users = UserDAL.GetNormalUsers();
+            foreach (var user in users)
+            {
+                var orders = OrderDAL.GetUserOrders(user.Id);
+                result.Add(new UserWithOrders
+                {
+                    FullName = user.FirstName + " " + user.LastName,
+                    Email = user.Email,
+                    Orders = orders
+                });
+            }
+
+            UsersWithOrders = result;
+            UpdateOrderStatusCounts();
+        }
+
         private void UpdateOrderStatusCounts()
         {
             if (UsersWithOrders == null) return;
@@ -67,27 +102,6 @@ namespace Wpf_OnlineRestaurantSystem.ViewModels
             OutForDeliveryCount = allOrders.Count(o => o.Status == "Out for Delivery");
             DeliveredCount = allOrders.Count(o => o.Status == "Delivered");
             CanceledCount = allOrders.Count(o => o.Status == "Canceled");
-        }
-
-        public ICommand UpdateOrderStatusCommand { get; }
-        public ICommand OpenInventoryManagementCommand { get; }
-
-        public ICommand CancelOrderCommand { get; }
-        public AdminViewModel()
-        {
-            CancelOrderCommand = new RelayCommand(CancelOrder);
-            UpdateOrderStatusCommand = new RelayCommand(UpdateOrderStatus);
-
-            OpenInventoryManagementCommand = new RelayCommand(OpenInventoryManagement);
-
-            LoadUsersAndOrders();
-        }
-        private void OpenInventoryManagement(object parameter)
-        {
-            var window = new InventoryManagementWindow();
-            window.DataContext = new InventoryManagementViewModel();
-            window.Owner = Application.Current.MainWindow;
-            window.ShowDialog();
         }
 
         private void UpdateOrderStatus(object parameter)
@@ -112,26 +126,7 @@ namespace Wpf_OnlineRestaurantSystem.ViewModels
                 OrderDAL.CancelOrder(info.OrderId);
             }
         }
-        private void LoadUsersAndOrders()
-        {
-            var result = new ObservableCollection<UserWithOrders>();
 
-            var users = UserDAL.GetNormalUsers();
-            foreach (var user in users)
-            {
-                var orders = OrderDAL.GetUserOrders(user.Id);
-                result.Add(new UserWithOrders
-                {
-                    FullName = user.FirstName + " " + user.LastName,
-                    Email = user.Email,
-                    Orders = orders
-                });
-            }
-
-            UsersWithOrders = result;
-            UpdateOrderStatusCounts();
-
-        }
         private void CancelOrder(CancelOrderInfo info)
         {
             if (info == null) return;
@@ -145,6 +140,15 @@ namespace Wpf_OnlineRestaurantSystem.ViewModels
                 OnPropertyChanged(nameof(UsersWithOrders));
             }
         }
+
+        private void OpenInventoryManagement(object parameter)
+        {
+            var window = new InventoryManagementWindow();
+            window.DataContext = new InventoryManagementViewModel();
+            window.Owner = Application.Current.MainWindow;
+            window.ShowDialog();
+        }
+
         public static class OrderIdEncoder
         {
             private static readonly string Prefix = "CR-";
@@ -178,6 +182,7 @@ namespace Wpf_OnlineRestaurantSystem.ViewModels
                 return result.ToString();
             }
         }
+
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged([CallerMemberName] string propertyName = null) =>
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));

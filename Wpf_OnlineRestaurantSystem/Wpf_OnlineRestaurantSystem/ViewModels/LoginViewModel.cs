@@ -1,11 +1,10 @@
 ﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows;
+using System.Linq;
 using Wpf_OnlineRestaurantSystem.Models;
 using Wpf_OnlineRestaurantSystem.Views;
 using Wpf_OnlineRestaurantSystem.Helpers;
-using System.Linq;
-
 
 namespace Wpf_OnlineRestaurantSystem.ViewModels
 {
@@ -18,19 +17,40 @@ namespace Wpf_OnlineRestaurantSystem.ViewModels
         public string Email
         {
             get => email;
-            set { email = value; OnPropertyChanged(); }
+            set
+            {
+                if (email != value)
+                {
+                    email = value;
+                    OnPropertyChanged();
+                }
+            }
         }
 
         public string Password
         {
             get => password;
-            set { password = value; OnPropertyChanged(); }
+            set
+            {
+                if (password != value)
+                {
+                    password = value;
+                    OnPropertyChanged();
+                }
+            }
         }
 
         public string Message
         {
             get => message;
-            set { message = value; OnPropertyChanged(); }
+            set
+            {
+                if (message != value)
+                {
+                    message = value;
+                    OnPropertyChanged();
+                }
+            }
         }
 
         public RelayCommand LoginCommand { get; }
@@ -45,11 +65,9 @@ namespace Wpf_OnlineRestaurantSystem.ViewModels
             var user = UserDAL.GetUserByEmailAndPassword(Email, Password);
             if (user != null)
             {
-
-                Helpers.Session.CurrentUser = user;
-
+                Session.CurrentUser = user;
                 Message = $"Bun venit, {user.FirstName}!";
-                
+
                 var menuWindow = new MenuWindow();
                 menuWindow.Show();
 
@@ -63,7 +81,6 @@ namespace Wpf_OnlineRestaurantSystem.ViewModels
                 Message = "Email sau parolă incorectă.";
             }
         }
-
 
         public event PropertyChangedEventHandler PropertyChanged;
         private void OnPropertyChanged([CallerMemberName] string name = null)

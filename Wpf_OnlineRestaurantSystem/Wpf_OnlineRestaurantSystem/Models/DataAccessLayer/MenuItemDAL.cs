@@ -192,7 +192,6 @@ namespace Wpf_OnlineRestaurantSystem.Models
 
                 using (var reader = cmd.ExecuteReader())
                 {
-                    // Read individual dishes
                     while (reader.Read())
                     {
                         var totalQuantity = reader.IsDBNull(5) ? "0" : reader.GetString(5);
@@ -213,7 +212,6 @@ namespace Wpf_OnlineRestaurantSystem.Models
                         });
                     }
 
-                    // Read menus (if available)
                     if (reader.NextResult())
                     {
                         while (reader.Read())
