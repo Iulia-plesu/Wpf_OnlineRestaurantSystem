@@ -1,10 +1,8 @@
-# 🍽️ Wpf_OnlineRestaurantSystem
+## Wpf_OnlineRestaurantSystem
 
 A modern, interactive WPF desktop application for managing a restaurant's digital operations — including ordering, inventory, users, and administrative controls.
 
 This system is backed by a SQL Server database created and managed using **SQL Server Management Studio (SSMS)**. All database interactions are performed using **stored procedures**, with **ADO.NET** ensuring efficient communication between the application and the database.
-
----
 
 ## 📦 Features
 
